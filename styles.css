@@ -9,7 +9,7 @@ body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
     color: #FFA500; /* Orange text */
-    background: url('home_background.jpeg') no-repeat center center fixed; /* Replace with your image file name */
+    background: url('images/home_background.jpeg') no-repeat center center fixed; /* Replace with your image file name */
     background-size: cover; /* Ensures the image covers the entire screen */
     display: flex;
     flex-direction: column;
