@@ -1,6 +1,6 @@
 ## Ceeps Website
 
-- Designed to improve the [original Ceeps website](https://michaelsolmos.pythonanywhere.com/hello/) created by Mike Solmos.
+- Designed to improve the [original Century Pong website](https://michaelsolmos.pythonanywhere.com/hello/) created by Mike Solmos.
 - Planned features incude:
   - Better UI
   - Result submission tool
