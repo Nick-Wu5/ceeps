@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboards - Century Pong</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+    <div class="content-container max-w-6xl w-full mx-auto my-8">
+        <header class="mb-6">
+            <h1 class="text-4xl mb-4">
+                <span class="hub-header">Leaderboards</span>
+            </h1>
+        </header>
+        
+        <div class="mb-6">
+            <label class="block text-orange-500 font-bold mb-2">Sort by:</label>
+            <select id="sort-by" class="p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                <option value="win_ratio">Win Rate</option>
+                <option value="total_cups">Total Cups</option>
+                <option value="games_played">Games Played</option>
+                <option value="scorecards">Scorecards</option>
+            </select>
+        </div>
+
+        <div id="leaderboard-container">
+            <!-- Leaderboard will be loaded here -->
+        </div>
+
+        <div class="mt-6">
+            <a href="home.html" class="nav-button">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/random-background.js"></script>
+</body>
+</html>
