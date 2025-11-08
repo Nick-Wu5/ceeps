@@ -6,17 +6,17 @@
     <title>Leaderboards - Century Pong</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen">
-    <div class="content-container max-w-6xl w-full mx-auto my-8">
-        <header class="mb-6">
-            <h1 class="text-4xl mb-4">
-                <span class="hub-header">Leaderboards</span>
+<body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-6xl">
+        <header class="page-header">
+            <h1 class="text-4xl">
+                <span class="page-title">Leaderboards</span>
             </h1>
         </header>
         
         <div class="mb-6">
             <label class="block text-orange-500 font-bold mb-2">Sort by:</label>
-            <select id="sort-by" class="p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+            <select id="sort-by" class="form-select">
                 <option value="win_ratio">Win Rate</option>
                 <option value="total_cups">Total Cups</option>
                 <option value="games_played">Games Played</option>
@@ -28,7 +28,7 @@
             <!-- Leaderboard will be loaded here -->
         </div>
 
-        <div class="mt-6">
+        <div class="back-button-container">
             <a href="home.html" class="nav-button">Back to Home</a>
         </div>
     </div>

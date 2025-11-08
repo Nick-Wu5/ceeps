@@ -6,11 +6,11 @@
     <title>Admin - Hall of Fame - Century Pong</title>
     <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen">
-    <div class="content-container max-w-6xl w-full mx-auto my-8">
-        <header class="mb-6">
-            <h1 class="text-4xl mb-4">
-                <span class="hub-header">Hall of Fame Admin</span>
+<body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-6xl">
+        <header class="page-header">
+            <h1 class="text-4xl">
+                <span class="page-title">Hall of Fame Admin</span>
             </h1>
         </header>
 
@@ -20,7 +20,7 @@
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-orange-500 font-bold mb-2">Password</label>
-                    <input type="password" id="admin-password" required class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                    <input type="password" id="admin-password" required class="form-input">
                 </div>
                 <button type="submit" class="nav-button bg-green-600 hover:bg-green-700">Login</button>
             </form>
@@ -35,15 +35,15 @@
                 <form id="add-photo-form" class="space-y-4" enctype="multipart/form-data">
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Image</label>
-                        <input type="file" name="image" id="image-input" accept="image/*" required class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                        <input type="file" name="image" id="image-input" accept="image/*" required class="form-input">
                     </div>
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Caption</label>
-                        <input type="text" name="caption" id="caption-input" placeholder="Enter caption..." required class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                        <input type="text" name="caption" id="caption-input" placeholder="Enter caption..." required class="form-input">
                     </div>
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Display Order (optional)</label>
-                        <input type="number" name="display_order" id="display-order-input" value="0" class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                        <input type="number" name="display_order" id="display-order-input" value="0" class="form-input">
                         <p class="text-sm text-gray-400 mt-1">Lower numbers appear first</p>
                     </div>
                     <button type="submit" class="nav-button bg-green-600 hover:bg-green-700">Add Photo</button>
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <div class="mt-6">
+        <div class="back-button-container">
             <a href="../home.html" class="nav-button">Back to Home</a>
         </div>
     </div>
@@ -73,15 +73,15 @@
                 <input type="hidden" id="edit-id">
                 <div>
                     <label class="block text-orange-500 font-bold mb-2">Image (leave empty to keep current)</label>
-                    <input type="file" name="image" id="edit-image-input" accept="image/*" class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                    <input type="file" name="image" id="edit-image-input" accept="image/*" class="form-input">
                 </div>
                 <div>
                     <label class="block text-orange-500 font-bold mb-2">Caption</label>
-                    <input type="text" name="caption" id="edit-caption-input" required class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                    <input type="text" name="caption" id="edit-caption-input" required class="form-input">
                 </div>
                 <div>
                     <label class="block text-orange-500 font-bold mb-2">Display Order</label>
-                    <input type="number" name="display_order" id="edit-display-order-input" class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
+                    <input type="number" name="display_order" id="edit-display-order-input" class="form-input">
                 </div>
                 <div class="flex gap-4">
                     <button type="submit" class="nav-button bg-green-600 hover:bg-green-700 flex-1">Save Changes</button>

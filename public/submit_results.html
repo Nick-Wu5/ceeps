@@ -6,11 +6,11 @@
     <title>Submit Results - Century Pong</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="flex flex-col items-center justify-center min-h-screen">
-    <div class="content-container max-w-4xl w-full mx-auto my-8">
-      <header class="mb-6">
-        <h1 class="text-4xl mb-4">
-          <span class="hub-header">Submit Game Results</span>
+  <body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-6xl">
+      <header class="page-header">
+        <h1 class="text-4xl">
+          <span class="page-title">Submit Game Results</span>
         </h1>
       </header>
 
@@ -37,6 +37,94 @@
         </div>
       </div>
 
+      <!-- Review Confirmation Screen (hidden by default) -->
+      <div id="review-confirmation" class="hidden">
+        <div
+          class="bg-black bg-opacity-70 border-2 border-orange-500 rounded-lg p-8 mb-6"
+        >
+          <!-- Title -->
+          <h2 class="text-4xl font-bold text-white mb-4 text-center">
+            Game Results
+          </h2>
+
+          <!-- Date -->
+          <p class="text-xl text-white mb-8 text-center" id="review-date"></p>
+
+          <!-- Winners and Losers Columns -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Winners Column -->
+            <div>
+              <h3 class="text-xl font-bold text-white mb-4" id="winners-header">
+                Winners: <span id="winners-score"></span>
+              </h3>
+              <div id="winners-players" class="space-y-2">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+
+            <!-- Losers Column -->
+            <div>
+              <h3 class="text-xl font-bold text-white mb-4" id="losers-header">
+                Losers: <span id="losers-score"></span>
+              </h3>
+              <div id="losers-players" class="space-y-2">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Scorecard Info -->
+          <div class="text-center mb-6" id="review-scorecard-container">
+            <p class="text-white">
+              Scorecard:
+              <span
+                class="font-bold text-orange-500"
+                id="review-scorecard"
+              ></span>
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4 mt-8">
+            <button
+              id="finalize-submission"
+              class="nav-button bg-green-600 hover:bg-green-700 flex-1"
+            >
+              Finalize Submission
+            </button>
+            <button
+              id="edit-form"
+              class="nav-button bg-gray-600 hover:bg-gray-700 flex-1"
+            >
+              Go Back and Edit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiebreaker Modal (hidden by default) - moved outside review-confirmation -->
+      <div
+        id="tiebreaker-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+      >
+        <div class="bg-black bg-opacity-95 p-6 rounded-lg max-w-md w-full">
+          <h3 class="text-2xl font-bold text-orange-500 mb-4">
+            Scorecard Tiebreaker
+          </h3>
+          <p class="text-white mb-4">
+            Multiple players tied for most cups. Please select the scorecard
+            winner:
+          </p>
+          <div id="tiebreaker-options" class="space-y-2 mb-4"></div>
+          <button
+            id="confirm-tiebreaker"
+            class="nav-button bg-green-600 hover:bg-green-700 w-full"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+
       <form id="submit-game-form" class="text-left space-y-6">
         <!-- Players datalist for autocomplete -->
         <datalist id="players-list"></datalist>
@@ -47,182 +135,224 @@
           <input
             type="date"
             name="date"
+            id="date-input"
             required
-            class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
+            class="form-input"
           />
         </div>
 
-        <!-- Teams -->
+        <!-- Teams with Combined Player + Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Team 1 -->
           <div class="space-y-4">
             <h2 class="text-2xl font-bold text-orange-500">Team 1</h2>
-            <div class="space-y-2">
-              <input
-                type="text"
-                name="team1_player1"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team1_player2"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team1_player3"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team1_player4"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
+            <div class="space-y-4">
+              <!-- Player 1 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team1_player1"
+                  placeholder="Player 1 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team1_player1_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 2 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team1_player2"
+                  placeholder="Player 2 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team1_player2_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 3 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team1_player3"
+                  placeholder="Player 3 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team1_player3_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 4 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team1_player4"
+                  placeholder="Player 4 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team1_player4_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Team 2 -->
           <div class="space-y-4">
             <h2 class="text-2xl font-bold text-orange-500">Team 2</h2>
-            <div class="space-y-2">
-              <input
-                type="text"
-                name="team2_player1"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team2_player2"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team2_player3"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-              <input
-                type="text"
-                name="team2_player4"
-                placeholder="Type player name..."
-                required
-                list="players-list"
-                autocomplete="off"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
+            <div class="space-y-4">
+              <!-- Player 1 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team2_player1"
+                  placeholder="Player 1 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team2_player1_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 2 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team2_player2"
+                  placeholder="Player 2 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team2_player2_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 3 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team2_player3"
+                  placeholder="Player 3 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team2_player3_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Player 4 -->
+              <div class="bg-black bg-opacity-50 p-4 rounded">
+                <input
+                  type="text"
+                  name="team2_player4"
+                  placeholder="Player 4 name..."
+                  required
+                  list="players-list"
+                  autocomplete="off"
+                  class="form-input mb-3"
+                />
+                <div class="space-y-2">
+                  <input
+                    type="number"
+                    name="team2_player4_cups"
+                    placeholder="Cups hit"
+                    min="0"
+                    value="0"
+                    required
+                    class="form-input"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Individual Stats -->
-        <div>
-          <h2 class="text-2xl font-bold text-orange-500 mb-4">
-            Individual Stats
-          </h2>
-          <div
-            id="individual-stats-container"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            <!-- Will be populated by JavaScript -->
-          </div>
-        </div>
-
-        <!-- Game Result -->
-        <div class="space-y-4">
-          <div>
-            <label class="block text-orange-500 font-bold mb-2">Winner</label>
-            <select
-              name="winner"
-              id="winner"
-              required
-              class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-            >
-              <option value="">Select winner...</option>
-              <option value="team1">Team 1</option>
-              <option value="team2">Team 2</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-orange-500 font-bold mb-2"
-              >Scorecard Player (Player with most cups on winning team)</label
-            >
-            <input
-              type="text"
-              name="scorecard_player"
-              id="scorecard_player"
-              placeholder="Type player name..."
-              required
-              list="players-list"
-              autocomplete="off"
-              class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-            />
-            <p class="text-sm text-gray-400 mt-1">
-              Will be auto-populated when winner is selected
-            </p>
-          </div>
-
-          <div class="flex items-center">
-            <input type="checkbox" name="overtime" id="overtime" class="mr-2" />
-            <label for="overtime" class="text-orange-500"
-              >Game went to overtime</label
-            >
-          </div>
-
-          <div id="ot-cups" class="hidden grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-orange-500 font-bold mb-2"
-                >Team 1 OT Cups</label
-              >
-              <input
-                type="number"
-                name="team1_ot_cups"
-                min="0"
-                value="0"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-            </div>
-            <div>
-              <label class="block text-orange-500 font-bold mb-2"
-                >Team 2 OT Cups</label
-              >
-              <input
-                type="number"
-                name="team2_ot_cups"
-                min="0"
-                value="0"
-                class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500"
-              />
-            </div>
-          </div>
-        </div>
+        <!-- Hidden fields for calculated values -->
+        <input type="hidden" name="winner" id="winner-input" />
+        <input type="hidden" name="scorecard_player" id="scorecard-input" />
+        <input type="hidden" name="team1_score" id="team1_score-input" />
+        <input type="hidden" name="team2_score" id="team2_score-input" />
 
         <!-- Submit Button -->
         <div class="flex gap-4">
@@ -230,7 +360,7 @@
             type="submit"
             class="nav-button bg-green-600 hover:bg-green-700"
           >
-            Submit Game
+            Review & Submit
           </button>
           <a href="home.html" class="nav-button bg-gray-600 hover:bg-gray-700"
             >Cancel</a
@@ -242,68 +372,5 @@
     <script src="js/api.js"></script>
     <script src="js/submit.js"></script>
     <script src="js/random-background.js"></script>
-    <script>
-      // Populate individual stats inputs dynamically
-      document.addEventListener("DOMContentLoaded", () => {
-        const container = document.getElementById("individual-stats-container");
-        const team1Inputs = document.querySelectorAll('[name^="team1_player"]');
-        const team2Inputs = document.querySelectorAll('[name^="team2_player"]');
-        const winnerSelect = document.getElementById("winner");
-        const scorecardInput = document.getElementById("scorecard_player");
-        const overtimeCheckbox = document.getElementById("overtime");
-        const otCupsDiv = document.getElementById("ot-cups");
-
-        function updateIndividualStats() {
-          container.innerHTML = "";
-          const allInputs = [...team1Inputs, ...team2Inputs];
-
-          allInputs.forEach((input) => {
-            const playerName = input.value.trim();
-            if (playerName) {
-              const statDiv = document.createElement("div");
-              statDiv.className = "bg-black bg-opacity-50 p-4 rounded";
-              statDiv.innerHTML = `
-                            <h3 class="text-orange-500 font-bold mb-2">${playerName}</h3>
-                            <div class="space-y-2">
-                                <input type="number" name="${playerName}_cups" placeholder="Cups hit" min="0" required class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
-                                <input type="number" name="${playerName}_ot_cups" placeholder="OT cups" min="0" value="0" class="w-full p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
-                                <label class="flex items-center text-white">
-                                    <input type="checkbox" name="${playerName}_naked_lap" class="mr-2">
-                                    Naked lap
-                                </label>
-                            </div>
-                        `;
-              container.appendChild(statDiv);
-            }
-          });
-
-          updateScorecardOptions();
-        }
-
-        function updateScorecardOptions() {
-          const scorecardInput = document.getElementById("scorecard_player");
-          const winner = winnerSelect.value;
-          if (winner && scorecardInput) {
-            // Pre-fill with first player from winning team as suggestion
-            const inputs = winner === "team1" ? team1Inputs : team2Inputs;
-            const firstPlayer = Array.from(inputs).find((input) =>
-              input.value.trim()
-            );
-            if (firstPlayer && firstPlayer.value.trim()) {
-              scorecardInput.placeholder = `Suggested: ${firstPlayer.value.trim()}`;
-            }
-          }
-        }
-
-        [...team1Inputs, ...team2Inputs].forEach((input) => {
-          input.addEventListener("blur", updateIndividualStats);
-        });
-
-        winnerSelect.addEventListener("change", updateScorecardOptions);
-        overtimeCheckbox.addEventListener("change", () => {
-          otCupsDiv.classList.toggle("hidden", !overtimeCheckbox.checked);
-        });
-      });
-    </script>
   </body>
 </html>

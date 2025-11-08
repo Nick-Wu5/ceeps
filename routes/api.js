@@ -14,9 +14,6 @@ router.post("/submit-result", (req, res) => {
     winner,
     team1_score,
     team2_score,
-    overtime = false,
-    team1_ot_cups = 0,
-    team2_ot_cups = 0,
     scorecard_player,
     individual_stats,
   } = req.body;
@@ -52,9 +49,8 @@ router.post("/submit-result", (req, res) => {
   const query = `INSERT INTO games 
     (date, team1_player1, team1_player2, team1_player3, team1_player4,
      team2_player1, team2_player2, team2_player3, team2_player4,
-     winner, team1_score, team2_score, overtime, team1_ot_cups, team2_ot_cups,
-     scorecard_player)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+     winner, team1_score, team2_score, scorecard_player)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   db.run(
     query,
@@ -71,9 +67,6 @@ router.post("/submit-result", (req, res) => {
       winner,
       team1_score,
       team2_score,
-      overtime ? 1 : 0,
-      team1_ot_cups,
-      team2_ot_cups,
       scorecard_player,
     ],
     function (err) {
@@ -92,9 +85,10 @@ router.post("/submit-result", (req, res) => {
         return new Promise((resolve, reject) => {
           const stats = individual_stats[playerName] || {};
           const cupsHit = stats.cups_hit || 0;
-          const otCupsHit = stats.ot_cups_hit || 0;
           const team = team1.includes(playerName) ? "team1" : "team2";
-          const manualNakedLap = stats.naked_lap || false;
+          // Get naked laps count (default 0), convert to boolean for database
+          const nakedLapsCount = stats.naked_laps || (stats.naked_lap ? 1 : 0);
+          const manualNakedLap = nakedLapsCount > 0;
 
           // Determine if player should run naked lap
           // Rule: 9 or fewer cups on losing team
@@ -104,19 +98,21 @@ router.post("/submit-result", (req, res) => {
           const ruleNakedLap = isLosingTeam && cupsHit <= 9;
 
           const shouldRunNakedLap = ruleNakedLap || manualNakedLap;
+          // Store naked laps count for player stats update
+          // If manual count provided, use it; otherwise use 1 if rule applies, 0 if not
+          const finalNakedLapsCount = manualNakedLap
+            ? nakedLapsCount
+            : ruleNakedLap
+            ? 1
+            : 0;
+          // Store in individual_stats for updatePlayerStats
+          individual_stats[playerName].naked_laps = finalNakedLapsCount;
 
           db.run(
             `INSERT INTO individual_game_stats 
-          (game_id, player_name, cups_hit, ot_cups_hit, team, naked_lap)
-          VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-              gameId,
-              playerName,
-              cupsHit,
-              otCupsHit,
-              team,
-              shouldRunNakedLap ? 1 : 0,
-            ],
+          (game_id, player_name, cups_hit, team, naked_lap)
+          VALUES (?, ?, ?, ?, ?)`,
+            [gameId, playerName, cupsHit, team, shouldRunNakedLap ? 1 : 0],
             (err) => {
               if (err) reject(err);
               else resolve();
@@ -127,8 +123,8 @@ router.post("/submit-result", (req, res) => {
 
       Promise.all(statsPromises)
         .then(() => {
-          // Update player stats
-          return updatePlayerStats(gameId);
+          // Update player stats (pass individual_stats for naked laps counts)
+          return updatePlayerStats(gameId, individual_stats);
         })
         .then(() => {
           res.json({ success: true, game_id: gameId });
@@ -143,46 +139,96 @@ router.post("/submit-result", (req, res) => {
   );
 });
 
-// GET /api/recent-games - Get recent games list
+// GET /api/recent-games - Get recent games list with pagination
 router.get("/recent-games", (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
+  const limit = parseInt(req.query.limit) || 5;
+  const offset = parseInt(req.query.offset) || 0;
+  const includeTotal = req.query.includeTotal === "true";
 
-  const query = `SELECT * FROM games ORDER BY created_at DESC LIMIT ?`;
+  // Get total count if requested
+  if (includeTotal) {
+    db.get("SELECT COUNT(*) as total FROM games", [], (err, countRow) => {
+      if (err) {
+        console.error("Error fetching total games:", err);
+        return res.status(500).json({ error: "Failed to fetch total games" });
+      }
 
-  db.all(query, [limit], (err, rows) => {
+      const total = parseInt(countRow.total) || 0;
+      fetchGamesWithStats(limit, offset, total, res);
+    });
+  } else {
+    fetchGamesWithStats(limit, offset, null, res);
+  }
+});
+
+function fetchGamesWithStats(limit, offset, totalCount, res) {
+  const query = `SELECT * FROM games ORDER BY date DESC, created_at DESC LIMIT ? OFFSET ?`;
+
+  db.all(query, [limit, offset], (err, rows) => {
     if (err) {
       console.error("Error fetching recent games:", err);
       return res.status(500).json({ error: "Failed to fetch games" });
     }
 
-    const games = rows.map((row) => ({
-      id: row.id,
-      date: row.date,
-      team1: [
-        row.team1_player1,
-        row.team1_player2,
-        row.team1_player3,
-        row.team1_player4,
-      ],
-      team2: [
-        row.team2_player1,
-        row.team2_player2,
-        row.team2_player3,
-        row.team2_player4,
-      ],
-      winner: row.winner,
-      team1_score: row.team1_score,
-      team2_score: row.team2_score,
-      overtime: row.overtime === 1,
-      team1_ot_cups: row.team1_ot_cups,
-      team2_ot_cups: row.team2_ot_cups,
-      scorecard_player: row.scorecard_player,
-      created_at: row.created_at,
-    }));
+    // Get individual stats for all games
+    const gameIds = rows.map((row) => row.id);
+    if (gameIds.length === 0) {
+      return res.json(totalCount !== null ? { games: [], total: totalCount } : []);
+    }
 
-    res.json(games);
+    const placeholders = gameIds.map(() => "?").join(",");
+    const statsQuery = `SELECT game_id, player_name, cups_hit FROM individual_game_stats WHERE game_id IN (${placeholders})`;
+
+    db.all(statsQuery, gameIds, (err, statsRows) => {
+      if (err) {
+        console.error("Error fetching individual stats:", err);
+        return res.status(500).json({ error: "Failed to fetch individual stats" });
+      }
+
+      // Create a map of game_id -> player_name -> cups_hit
+      const statsMap = {};
+      statsRows.forEach((stat) => {
+        const gameId = parseInt(stat.game_id); // Ensure it's a number
+        const playerName = stat.player_name;
+        const cupsHit = parseInt(stat.cups_hit) || 0; // Ensure it's a number
+        
+        if (!statsMap[gameId]) {
+          statsMap[gameId] = {};
+        }
+        statsMap[gameId][playerName] = cupsHit;
+      });
+
+      const games = rows.map((row) => ({
+        id: row.id,
+        date: row.date,
+        team1: [
+          row.team1_player1,
+          row.team1_player2,
+          row.team1_player3,
+          row.team1_player4,
+        ],
+        team2: [
+          row.team2_player1,
+          row.team2_player2,
+          row.team2_player3,
+          row.team2_player4,
+        ],
+        winner: row.winner,
+        team1_score: row.team1_score,
+        team2_score: row.team2_score,
+        scorecard_player: row.scorecard_player,
+        created_at: row.created_at,
+        individual_stats: statsMap[parseInt(row.id)] || {},
+      }));
+
+      if (totalCount !== null) {
+        res.json({ games, total: totalCount });
+      } else {
+        res.json(games);
+      }
+    });
   });
-});
+}
 
 // GET /api/player-stats/:playerName - Get statistics for a specific player
 router.get("/player-stats/:playerName", (req, res) => {
@@ -208,7 +254,6 @@ router.get("/player-stats/:playerName", (req, res) => {
         win_ratio: row.win_ratio,
         cups_hit_avg: row.cups_hit_avg,
         total_cups_hit: row.total_cups_hit,
-        total_ot_cups_hit: row.total_ot_cups_hit,
         number_of_scorecards: row.number_of_scorecards,
         naked_laps_run: row.naked_laps_run,
       });

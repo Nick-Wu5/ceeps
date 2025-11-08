@@ -32,9 +32,16 @@ async function submitGameResult(gameData) {
   });
 }
 
-// Get recent games
-async function getRecentGames(limit = 10) {
-  return apiRequest(`/recent-games?limit=${limit}`);
+// Get recent games with pagination
+async function getRecentGames(limit = 5, offset = 0, includeTotal = false) {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString()
+  });
+  if (includeTotal) {
+    params.append('includeTotal', 'true');
+  }
+  return apiRequest(`/recent-games?${params.toString()}`);
 }
 
 // Get player stats

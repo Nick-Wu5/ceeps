@@ -41,9 +41,6 @@ function initDatabase() {
         winner TEXT NOT NULL,
         team1_score INTEGER NOT NULL,
         team2_score INTEGER NOT NULL,
-        overtime BOOLEAN DEFAULT 0,
-        team1_ot_cups INTEGER DEFAULT 0,
-        team2_ot_cups INTEGER DEFAULT 0,
         scorecard_player TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`,
@@ -63,7 +60,6 @@ function initDatabase() {
         game_id INTEGER NOT NULL,
         player_name TEXT NOT NULL,
         cups_hit INTEGER NOT NULL,
-        ot_cups_hit INTEGER DEFAULT 0,
         team TEXT NOT NULL,
         naked_lap BOOLEAN DEFAULT 0,
         FOREIGN KEY (game_id) REFERENCES games(id)
@@ -89,7 +85,6 @@ function initDatabase() {
         win_ratio REAL DEFAULT 0,
         cups_hit_avg REAL DEFAULT 0,
         total_cups_hit INTEGER DEFAULT 0,
-        total_ot_cups_hit INTEGER DEFAULT 0,
         number_of_scorecards INTEGER DEFAULT 0,
         naked_laps_run INTEGER DEFAULT 0,
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -127,7 +122,7 @@ function initDatabase() {
 }
 
 // Helper function to update player stats after a game is added
-function updatePlayerStats(gameId) {
+function updatePlayerStats(gameId, individualStatsFromRequest = null) {
   return new Promise((resolve, reject) => {
     // Get game details
     db.get(
@@ -141,7 +136,7 @@ function updatePlayerStats(gameId) {
 
         // Get all individual stats for this game
         db.all(
-          "SELECT player_name, cups_hit, ot_cups_hit, team, naked_lap FROM individual_game_stats WHERE game_id = ?",
+          "SELECT player_name, cups_hit, team, naked_lap FROM individual_game_stats WHERE game_id = ?",
           [gameId],
           (err, stats) => {
             if (err) {
@@ -176,8 +171,10 @@ function updatePlayerStats(gameId) {
                 const playerTeam = playerStat.team;
                 const won = playerTeam === winner;
                 const cupsHit = playerStat.cups_hit || 0;
-                const otCupsHit = playerStat.ot_cups_hit || 0;
-                const nakedLap = playerStat.naked_lap ? 1 : 0;
+                // Use naked_laps count from request if available, otherwise use boolean from DB
+                const nakedLapsCount =
+                  individualStatsFromRequest?.[playerName]?.naked_laps ||
+                  (playerStat.naked_lap ? 1 : 0);
                 const gotScorecard = playerName === scorecardPlayer ? 1 : 0;
 
                 // Get current stats
@@ -196,15 +193,14 @@ function updatePlayerStats(gameId) {
                       const gamesWon = won ? 1 : 0;
                       const winRatio = won ? 1.0 : 0.0;
                       const totalCupsHit = cupsHit;
-                      const totalOtCupsHit = otCupsHit;
                       const cupsHitAvg = cupsHit;
                       const scorecards = gotScorecard ? 1 : 0;
-                      const nakedLaps = nakedLap;
+                      const nakedLaps = nakedLapsCount;
 
                       db.run(
                         `INSERT INTO player_stats 
-                  (player_name, games_played, games_won, win_ratio, cups_hit_avg, total_cups_hit, total_ot_cups_hit, number_of_scorecards, naked_laps_run, last_updated)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+                  (player_name, games_played, games_won, win_ratio, cups_hit_avg, total_cups_hit, number_of_scorecards, naked_laps_run, last_updated)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
                         [
                           playerName,
                           gamesPlayed,
@@ -212,7 +208,6 @@ function updatePlayerStats(gameId) {
                           winRatio,
                           cupsHitAvg,
                           totalCupsHit,
-                          totalOtCupsHit,
                           scorecards,
                           nakedLaps,
                         ],
@@ -228,12 +223,11 @@ function updatePlayerStats(gameId) {
                       const winRatio = gamesWon / gamesPlayed;
                       const totalCupsHit =
                         currentStats.total_cups_hit + cupsHit;
-                      const totalOtCupsHit =
-                        currentStats.total_ot_cups_hit + otCupsHit;
                       const cupsHitAvg = totalCupsHit / gamesPlayed;
                       const scorecards =
                         currentStats.number_of_scorecards + gotScorecard;
-                      const nakedLaps = currentStats.naked_laps_run + nakedLap;
+                      const nakedLaps =
+                        currentStats.naked_laps_run + nakedLapsCount;
 
                       db.run(
                         `UPDATE player_stats SET
@@ -242,7 +236,6 @@ function updatePlayerStats(gameId) {
                   win_ratio = ?,
                   cups_hit_avg = ?,
                   total_cups_hit = ?,
-                  total_ot_cups_hit = ?,
                   number_of_scorecards = ?,
                   naked_laps_run = ?,
                   last_updated = CURRENT_TIMESTAMP
@@ -253,7 +246,6 @@ function updatePlayerStats(gameId) {
                           winRatio,
                           cupsHitAvg,
                           totalCupsHit,
-                          totalOtCupsHit,
                           scorecards,
                           nakedLaps,
                           playerName,

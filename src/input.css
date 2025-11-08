@@ -2,34 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom component classes */
+/* ============================================
+   Custom Site Styling Classes
+   ============================================ */
+
 @layer components {
-  .ceeps-header {
-    @apply text-white bg-black px-2.5 py-0 rounded;
-  }
-  
-  .hub-header {
-    @apply text-black bg-orange-500 px-2.5 py-0 rounded;
-  }
-  
+  /* Navigation Button */
   .nav-button {
     @apply no-underline text-black bg-orange-500 font-bold py-2.5 px-5 border-2 border-orange-500 rounded transition-all duration-300 text-center;
   }
-  
+
   .nav-button:hover {
     @apply bg-black text-orange-500;
   }
-  
-  .content-container {
-    @apply bg-black bg-opacity-70 p-5 rounded-lg max-w-[80%] text-center shadow-lg;
+
+  /* Hero button variant - larger, more prominent */
+  .nav-button.hero {
+    @apply text-xl py-4 px-8 w-full max-w-md;
   }
-  
+
+  /* Game and Stat Cards */
   .game-card {
     @apply bg-black bg-opacity-70 p-6 rounded-lg shadow-xl mb-4 text-left;
   }
-  
+
   .stat-card {
     @apply bg-black bg-opacity-70 p-6 rounded-lg shadow-xl;
   }
+
+  /* Layout Classes */
+  /* Standard page container - replaces content-container */
+  .page-wrapper {
+    @apply bg-black bg-opacity-70 p-5 rounded-lg max-w-[80%] text-center shadow-lg w-full mx-auto my-8;
+  }
+
+  /* Home page specific wrapper - centers content vertically */
+  .main-wrapper {
+    @apply w-full max-w-4xl mx-auto px-4 flex-1 flex flex-col justify-center gap-8;
+  }
+
+  /* Standardized page header container */
+  .page-header {
+    @apply mb-6;
+  }
+
+  /* Content area wrapper */
+  .page-content {
+    @apply text-left;
+  }
+
+  /* Container for "Back to Home" buttons */
+  .back-button-container {
+    @apply mt-6;
+  }
+
+  /* Component Classes */
+  /* Home page title */
+  .site-title {
+    font-family: "Russo One", sans-serif;
+    @apply text-5xl leading-none bg-black text-orange-500 px-4 py-2 rounded inline-block m-0;
+  }
+
+  /* Standard page titles - replaces hub-header span pattern */
+  .page-title {
+    @apply text-4xl leading-10 mb-4 rounded bg-orange-500 text-black px-2.5 py-0 inline-block;
+  }
+
+  /* Site footer */
+  .site-footer {
+    @apply mt-auto pt-8 pb-4 text-sm text-orange-500 text-center;
+  }
+
+  .site-footer a {
+    @apply text-orange-500 underline ml-2;
+  }
+
+  .site-footer a:hover {
+    color: rgb(251 146 60);
+  }
+
+  /* Standardized form input fields */
+  .form-input {
+    @apply w-full p-3 rounded text-white border border-orange-500;
+    background-color: rgb(0 0 0 / 0.5);
+  }
+
+  /* Standardized select dropdowns */
+  .form-select {
+    @apply p-2 rounded text-white border border-orange-500;
+    background-color: rgb(0 0 0 / 0.5);
+  }
+
+  /* Utility Classes */
+  /* Brand orange color */
+  .text-orange {
+    @apply text-orange-500;
+  }
+
+  /* Dark background with opacity */
+  .bg-dark {
+    background-color: rgb(0 0 0 / 0.7);
+  }
 }
 
+/* ============================================
+   Documentation
+   ============================================ */
+
+/* 
+ * When to use custom classes vs Tailwind:
+ * 
+ * Custom CSS Classes (use for):
+ * - Reusable components (buttons, inputs, containers)
+ * - Brand-specific styling (colors, typography)
+ * - Common patterns across multiple pages
+ * 
+ * Tailwind Utilities (use for):
+ * - Layout utilities (flex, grid, spacing)
+ * - Responsive breakpoints (md:, lg:, etc.)
+ * - One-off adjustments and positioning
+ * 
+ * Deprecated classes (removed):
+ * - .ceeps-header (no longer used)
+ * - .hub-header (replaced by .page-title)
+ * - .content-container (replaced by .page-wrapper)
+ */

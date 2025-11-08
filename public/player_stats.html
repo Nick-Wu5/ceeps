@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Player Stats - Century Pong</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body class="flex flex-col items-center justify-center min-h-screen">
-    <div class="content-container max-w-4xl w-full mx-auto my-8">
-        <header class="mb-6">
-            <h1 class="text-4xl mb-4">
-                <span class="hub-header">Player Stats</span>
-            </h1>
-        </header>
-        
-        <div class="mb-6">
-            <div class="flex gap-2">
-                <input type="text" id="player-search" placeholder="Enter player name..." class="flex-1 p-2 rounded bg-black bg-opacity-50 text-white border border-orange-500">
-                <button id="search-button" class="nav-button">Search</button>
-            </div>
-        </div>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-7xl">
+      <header class="page-header">
+        <h1 class="text-4xl">
+          <span class="page-title">Player Stats</span>
+        </h1>
+      </header>
 
-        <div id="player-stats-container">
-            <!-- Stats will be loaded here -->
-        </div>
+      <div class="mb-6">
+        <input
+          type="text"
+          id="player-search"
+          placeholder="Search players..."
+          class="form-input"
+          autocomplete="off"
+          list="players-list"
+        />
+        <datalist id="players-list"></datalist>
+      </div>
 
-        <div class="mt-6">
-            <a href="home.html" class="nav-button">Back to Home</a>
-        </div>
+      <div id="player-stats-container">
+        <!-- Stats will be loaded here when a player is selected -->
+      </div>
+
+      <div class="back-button-container">
+        <a href="home.html" class="nav-button">Back to Home</a>
+      </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/player-stats.js"></script>
     <script src="js/random-background.js"></script>
-</body>
+  </body>
 </html>
