@@ -223,6 +223,21 @@ function createGameCard(game) {
 
 function formatDate(dateString) {
   try {
+    // Parse YYYY-MM-DD format and create date in local timezone
+    // This prevents timezone issues where UTC dates shift by one day
+    if (
+      typeof dateString === "string" &&
+      dateString.match(/^\d{4}-\d{2}-\d{2}$/)
+    ) {
+      const [year, month, day] = dateString.split("-").map(Number);
+      const date = new Date(year, month - 1, day); // month is 0-indexed
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+    // Fallback for other formats
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",

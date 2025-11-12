@@ -1,22 +1,23 @@
 // Leaderboard page logic
 
-document.addEventListener('DOMContentLoaded', () => {
-  const sortSelect = document.getElementById('sort-by');
+document.addEventListener("DOMContentLoaded", () => {
+  const sortSelect = document.getElementById("sort-by");
   if (sortSelect) {
-    sortSelect.addEventListener('change', (e) => {
+    sortSelect.addEventListener("change", (e) => {
       loadLeaderboard(e.target.value);
     });
   }
-  
-  loadLeaderboard('win_ratio');
+
+  loadLeaderboard("win_ratio");
 });
 
-async function loadLeaderboard(sortBy = 'win_ratio') {
-  const container = document.getElementById('leaderboard-container');
+async function loadLeaderboard(sortBy = "win_ratio") {
+  const container = document.getElementById("leaderboard-container");
   if (!container) return;
 
   try {
-    container.innerHTML = '<p class="text-orange-500">Loading leaderboard...</p>';
+    container.innerHTML =
+      '<p class="text-orange-500">Loading leaderboard...</p>';
     const leaderboard = await window.ceepsAPI.getLeaderboard(sortBy, 50);
 
     if (leaderboard.length === 0) {
@@ -40,7 +41,9 @@ async function loadLeaderboard(sortBy = 'win_ratio') {
             </tr>
           </thead>
           <tbody>
-            ${leaderboard.map(player => createLeaderboardRow(player)).join('')}
+            ${leaderboard
+              .map((player) => createLeaderboardRow(player))
+              .join("")}
           </tbody>
         </table>
       </div>
@@ -58,9 +61,9 @@ function createLeaderboardRow(player) {
   const gamesWon = player.games_won || 0;
   const totalCupsHit = player.total_cups_hit || 0;
   const scorecards = player.number_of_scorecards || 0;
-  const playerName = player.player_name || 'Unknown';
+  const playerName = player.player_name || "Unknown";
   const rank = player.rank || 0;
-  
+
   return `
     <tr class="border-b border-gray-700 hover:bg-black hover:bg-opacity-50">
       <td class="p-3 text-white font-bold">#${rank}</td>
@@ -74,4 +77,3 @@ function createLeaderboardRow(player) {
     </tr>
   `;
 }
-
