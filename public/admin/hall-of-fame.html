@@ -35,15 +35,15 @@
                 <form id="add-photo-form" class="space-y-4" enctype="multipart/form-data">
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Image</label>
-                        <input type="file" name="image" id="image-input" accept="image/*" required class="form-input">
+                        <input type="file" name="image" id="add-image-input" accept="image/*" required class="form-input">
                     </div>
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Caption</label>
-                        <input type="text" name="caption" id="caption-input" placeholder="Enter caption..." required class="form-input">
+                        <input type="text" name="caption" id="add-caption-input" placeholder="Enter caption..." required class="form-input">
                     </div>
                     <div>
                         <label class="block text-orange-500 font-bold mb-2">Display Order (optional)</label>
-                        <input type="number" name="display_order" id="display-order-input" value="0" class="form-input">
+                        <input type="number" name="display_order" id="add-display-order-input" value="0" class="form-input">
                         <p class="text-sm text-gray-400 mt-1">Lower numbers appear first</p>
                     </div>
                     <button type="submit" class="nav-button bg-green-600 hover:bg-green-700">Add Photo</button>
@@ -150,7 +150,12 @@
             const displayOrder = parseInt(document.getElementById('add-display-order-input').value) || 0;
             const imageFile = document.getElementById('add-image-input').files[0];
             const messageDiv = document.getElementById('add-message');
+            const submitButton = e.target.querySelector('button[type="submit"]');
             
+            // Clear previous messages
+            messageDiv.classList.add('hidden');
+            
+            // Validation
             if (!imageFile) {
                 messageDiv.textContent = 'Error: Please select an image file';
                 messageDiv.className = 'mt-4 text-red-500';
@@ -165,18 +170,36 @@
                 return;
             }
             
+            // Show loading state
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading...';
+            messageDiv.textContent = 'Uploading photo...';
+            messageDiv.className = 'mt-4 text-orange-500';
+            messageDiv.classList.remove('hidden');
+            
             try {
                 await window.ceepsAPI.addHallOfFamePhoto(imageFile, caption, displayOrder);
                 
+                // Success feedback
                 messageDiv.textContent = 'Photo added successfully!';
                 messageDiv.className = 'mt-4 text-green-500';
                 e.target.reset();
-                loadPhotos();
-                messageDiv.classList.remove('hidden');
+                
+                // Reload photos list
+                await loadPhotos();
+                
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
             } catch (error) {
+                // Error feedback
                 messageDiv.textContent = 'Error: ' + error.message;
                 messageDiv.className = 'mt-4 text-red-500';
-                messageDiv.classList.remove('hidden');
+                
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
             }
         });
 

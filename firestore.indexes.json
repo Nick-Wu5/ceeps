@@ -46,6 +46,91 @@
   //     ]
   //   },
   // ]
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "win_ratio",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "total_cups_hit",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "cups_hit_avg",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "number_of_scorecards",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "games",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "date",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "hall_of_fame",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "display_order",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "mode": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

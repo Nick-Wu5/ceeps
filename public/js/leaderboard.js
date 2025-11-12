@@ -51,18 +51,26 @@ async function loadLeaderboard(sortBy = 'win_ratio') {
 }
 
 function createLeaderboardRow(player) {
-  const winRatePercent = (player.win_ratio * 100).toFixed(1);
+  // Safely handle all numeric values with defaults
+  const winRatePercent = ((player.win_ratio || 0) * 100).toFixed(1);
+  const cupsHitAvg = (player.cups_hit_avg || 0).toFixed(1);
+  const gamesPlayed = player.games_played || 0;
+  const gamesWon = player.games_won || 0;
+  const totalCupsHit = player.total_cups_hit || 0;
+  const scorecards = player.number_of_scorecards || 0;
+  const playerName = player.player_name || 'Unknown';
+  const rank = player.rank || 0;
   
   return `
     <tr class="border-b border-gray-700 hover:bg-black hover:bg-opacity-50">
-      <td class="p-3 text-white font-bold">#${player.rank}</td>
-      <td class="p-3 text-orange-500 font-bold">${player.player_name}</td>
-      <td class="p-3 text-white">${player.games_played}</td>
-      <td class="p-3 text-white">${player.games_won}</td>
+      <td class="p-3 text-white font-bold">#${rank}</td>
+      <td class="p-3 text-orange-500 font-bold">${playerName}</td>
+      <td class="p-3 text-white">${gamesPlayed}</td>
+      <td class="p-3 text-white">${gamesWon}</td>
       <td class="p-3 text-white">${winRatePercent}%</td>
-      <td class="p-3 text-white">${player.cups_hit_avg.toFixed(1)}</td>
-      <td class="p-3 text-white">${player.total_cups_hit}</td>
-      <td class="p-3 text-yellow-500">${player.number_of_scorecards}</td>
+      <td class="p-3 text-white">${cupsHitAvg}</td>
+      <td class="p-3 text-white">${totalCupsHit}</td>
+      <td class="p-3 text-yellow-500">${scorecards}</td>
     </tr>
   `;
 }

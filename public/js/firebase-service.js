@@ -11,9 +11,9 @@ function ensureFirebase() {
   return window.db;
 }
 
-// Helper to get Firestore functions
+// Helper to get Firestore instance
 function getFirestore() {
-  return window.firebase.firestore;
+  return window.db; // Return the Firestore instance, not the namespace
 }
 
 // Submit a game result
@@ -55,7 +55,7 @@ async function submitGameResult(gameData) {
       team1_score: gameData.team1_score,
       team2_score: gameData.team2_score,
       scorecard_player: gameData.scorecard_player,
-      created_at: firestore.FieldValue.serverTimestamp(),
+      created_at: window.firebase.firestore.FieldValue.serverTimestamp(),
     });
 
     const gameId = gameRef.id;
@@ -158,7 +158,7 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
           total_cups_hit: cupsHit,
           number_of_scorecards: gotScorecard,
           naked_laps_run: nakedLapsCount,
-          last_updated: firestore.FieldValue.serverTimestamp(),
+          last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
         };
         transaction.set(playerStatsRef, newStats);
       } else {
@@ -180,7 +180,7 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
           total_cups_hit: totalCupsHit,
           number_of_scorecards: scorecards,
           naked_laps_run: nakedLaps,
-          last_updated: firestore.FieldValue.serverTimestamp(),
+          last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
         });
       }
     });
@@ -318,12 +318,17 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
 
   try {
     let orderByField;
+    let useSecondaryOrderBy = true;
+
     switch (sortBy) {
       case "total_cups":
         orderByField = "total_cups_hit";
         break;
       case "games_played":
+        // When sorting by games_played, we can't use it twice
+        // Use only one orderBy and sort client-side
         orderByField = "games_played";
+        useSecondaryOrderBy = false;
         break;
       case "scorecards":
         orderByField = "number_of_scorecards";
@@ -334,45 +339,100 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
         break;
     }
 
-    const snapshot = await firestore
+    // Build query - only add second orderBy if not sorting by games_played
+    let query = firestore
       .collection("player_stats")
-      .where("games_played", ">", 0)
-      .orderBy("games_played", "desc")
-      .orderBy(orderByField, "desc")
-      .limit(limit)
-      .get();
+      .where("games_played", ">", 0);
+
+    if (useSecondaryOrderBy) {
+      query = query
+        .orderBy("games_played", "desc")
+        .orderBy(orderByField, "desc");
+    } else {
+      // When sorting by games_played, only order by that field
+      query = query.orderBy(orderByField, "desc");
+    }
+
+    // Fetch more than limit to ensure we have enough after client-side sorting
+    // This helps with tie-breaking edge cases
+    const snapshot = await query.limit(limit * 2).get();
+
+    // Handle empty results
+    if (snapshot.empty) {
+      return [];
+    }
+
     const leaderboard = [];
-    let rank = 1;
     snapshot.forEach((doc) => {
       const data = doc.data();
+      // Ensure all fields have safe defaults
       leaderboard.push({
-        rank: rank++,
         player_name: doc.id,
-        games_played: data.games_played || 0,
-        games_won: data.games_won || 0,
-        win_ratio: data.win_ratio || 0,
-        cups_hit_avg: data.cups_hit_avg || 0,
-        total_cups_hit: data.total_cups_hit || 0,
-        number_of_scorecards: data.number_of_scorecards || 0,
-        naked_laps_run: data.naked_laps_run || 0,
+        games_played: Number(data.games_played) || 0,
+        games_won: Number(data.games_won) || 0,
+        win_ratio: Number(data.win_ratio) || 0,
+        cups_hit_avg: Number(data.cups_hit_avg) || 0,
+        total_cups_hit: Number(data.total_cups_hit) || 0,
+        number_of_scorecards: Number(data.number_of_scorecards) || 0,
+        naked_laps_run: Number(data.naked_laps_run) || 0,
       });
     });
 
-    // Sort client-side since Firestore can only order by one field at a time
-    if (sortBy === "win_ratio") {
-      leaderboard.sort((a, b) => {
+    // Always sort client-side for consistent tie-breaking across all sort types
+    leaderboard.sort((a, b) => {
+      let primaryValueA, primaryValueB;
+
+      // Get primary sort value
+      switch (sortBy) {
+        case "win_ratio":
+          primaryValueA = a.win_ratio;
+          primaryValueB = b.win_ratio;
+          break;
+        case "total_cups":
+          primaryValueA = a.total_cups_hit;
+          primaryValueB = b.total_cups_hit;
+          break;
+        case "games_played":
+          primaryValueA = a.games_played;
+          primaryValueB = b.games_played;
+          break;
+        case "scorecards":
+          primaryValueA = a.number_of_scorecards;
+          primaryValueB = b.number_of_scorecards;
+          break;
+        default:
+          primaryValueA = a.win_ratio;
+          primaryValueB = b.win_ratio;
+      }
+
+      // Primary sort (descending)
+      if (primaryValueB !== primaryValueA) {
+        return primaryValueB - primaryValueA;
+      }
+
+      // Tie-breaking: Use win_ratio as secondary sort (except when already sorting by it)
+      if (sortBy !== "win_ratio") {
         if (b.win_ratio !== a.win_ratio) {
           return b.win_ratio - a.win_ratio;
         }
-        return b.games_played - a.games_played;
-      });
-      // Re-assign ranks
-      leaderboard.forEach((player, index) => {
-        player.rank = index + 1;
-      });
-    }
+      }
 
-    return leaderboard;
+      // Tertiary tie-breaking: Use games_played
+      if (b.games_played !== a.games_played) {
+        return b.games_played - a.games_played;
+      }
+
+      // Final tie-breaking: Alphabetical by player name
+      return a.player_name.localeCompare(b.player_name);
+    });
+
+    // Limit to requested number and assign ranks
+    const limitedLeaderboard = leaderboard.slice(0, limit);
+    limitedLeaderboard.forEach((player, index) => {
+      player.rank = index + 1;
+    });
+
+    return limitedLeaderboard;
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     throw error;
@@ -405,16 +465,61 @@ async function getHallOfFame() {
   const firestore = getFirestore();
 
   try {
-    const snapshot = await firestore
-      .collection("hall_of_fame")
-      .orderBy("display_order")
-      .orderBy("created_at", "desc")
-      .get();
+    // Try the indexed query first, fallback to client-side sorting if index not ready
+    let snapshot;
+    let needsClientSort = false;
+
+    try {
+      snapshot = await firestore
+        .collection("hall_of_fame")
+        .orderBy("display_order")
+        .orderBy("created_at", "desc")
+        .get();
+    } catch (indexError) {
+      // If index is still building, fetch all and sort client-side
+      if (indexError.message && indexError.message.includes("index")) {
+        console.warn("Index not ready, using client-side sorting");
+        snapshot = await firestore.collection("hall_of_fame").get();
+        needsClientSort = true;
+      } else {
+        throw indexError;
+      }
+    }
 
     const photos = [];
     snapshot.forEach((doc) => {
-      photos.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      const photo = { id: doc.id, ...data };
+
+      // If we need client-side sorting, add sortable timestamp
+      if (needsClientSort) {
+        if (data.created_at?.toDate) {
+          photo._sortTimestamp = data.created_at.toDate().getTime();
+        } else if (data.created_at?.getTime) {
+          photo._sortTimestamp = data.created_at.getTime();
+        } else {
+          photo._sortTimestamp = 0;
+        }
+      }
+
+      photos.push(photo);
     });
+
+    // If we fetched without index, sort client-side
+    if (needsClientSort && photos.length > 0) {
+      photos.sort((a, b) => {
+        // Primary sort: display_order (ascending)
+        const orderA = a.display_order || 0;
+        const orderB = b.display_order || 0;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        // Secondary sort: created_at (descending)
+        return (b._sortTimestamp || 0) - (a._sortTimestamp || 0);
+      });
+      // Remove temporary sort field
+      photos.forEach((photo) => delete photo._sortTimestamp);
+    }
 
     return photos;
   } catch (error) {
@@ -461,7 +566,7 @@ async function addHallOfFamePhoto(imageFile, caption, displayOrder = 0) {
       image_filename: imageFile.name, // Keep for backward compatibility
       caption: caption.trim(),
       display_order: displayOrder,
-      created_at: firestore.FieldValue.serverTimestamp(),
+      created_at: window.firebase.firestore.FieldValue.serverTimestamp(),
     });
 
     return { success: true, id: docRef.id };
