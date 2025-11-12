@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Hall of Fame images - public read, write allowed
+    // (Admin password check is handled client-side)
+    match /hall-of-fame/{allPaths=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Block everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

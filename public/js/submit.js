@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     try {
-      console.log("Form submitted");
-
       // Collect form data
       const formData = new FormData(form);
       const team1 = [
@@ -58,8 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return sum + (individualStats[player]?.cups_hit || 0);
       }, 0);
 
-      console.log("Team scores calculated:", { team1_score, team2_score });
-
       // Auto-calculate winner
       let winner;
       if (team1_score > team2_score) {
@@ -68,15 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
         winner = "team2";
       } else {
         // Tie - need user input
-        console.log("Tie detected, showing error message");
         showMessage(
           "Game ended in a tie. Please manually select the winner.",
           "error"
         );
         return;
       }
-
-      console.log("Winner determined:", winner);
 
       // Auto-calculate scorecard player (most cups on winning team)
       const winningTeam = winner === "team1" ? team1 : team2;
@@ -89,16 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const maxCups = Math.max(...winningTeamStats.map((s) => s.cups));
       const topPlayers = winningTeamStats.filter((s) => s.cups === maxCups);
 
-      console.log("Scorecard calculation:", { maxCups, topPlayers });
-
       let scorecardPlayer;
       let scorecardTiedPlayers = null;
       if (topPlayers.length === 1) {
         scorecardPlayer = topPlayers[0].name;
-        console.log("Single scorecard player:", scorecardPlayer);
       } else {
         // Tie - will be resolved in confirmation screen
-        console.log("Scorecard tie, will prompt in confirmation screen");
         scorecardTiedPlayers = topPlayers.map((p) => p.name);
         scorecardPlayer = null; // Will be set in confirmation screen
       }
@@ -120,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.pendingGameData = gameData;
 
       // Show review confirmation
-      console.log("Calling showReviewConfirmation with:", gameData);
       showReviewConfirmation(gameData);
     } catch (error) {
       console.error("Error in form submission:", error);
@@ -188,14 +176,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const editBtn = document.getElementById("edit-form");
   if (editBtn) {
     editBtn.addEventListener("click", () => {
-      console.log("Edit button clicked - hiding confirmation and showing form");
       // Hide review confirmation
       reviewConfirmation.classList.add("hidden");
       reviewConfirmation.style.display = "none";
       // Show form - remove inline style to let CSS take over
       form.style.display = "";
       form.classList.remove("hidden");
-      console.log("Form should now be visible");
     });
   }
 });
@@ -218,17 +204,11 @@ async function loadPlayers() {
 
 function promptTiebreaker(players) {
   return new Promise((resolve) => {
-    console.log("promptTiebreaker called with players:", players);
     const modal = document.getElementById("tiebreaker-modal");
     const optionsDiv = document.getElementById("tiebreaker-options");
     const confirmBtn = document.getElementById("confirm-tiebreaker");
 
     if (!modal || !optionsDiv || !confirmBtn) {
-      console.error("Tiebreaker modal elements not found", {
-        modal: !!modal,
-        optionsDiv: !!optionsDiv,
-        confirmBtn: !!confirmBtn,
-      });
       // Resolve with first player as fallback
       resolve(players[0]);
       return;
@@ -252,10 +232,8 @@ function promptTiebreaker(players) {
     });
 
     // Show modal
-    console.log("Showing tiebreaker modal");
     modal.classList.remove("hidden");
     modal.style.display = "flex";
-    console.log("Tiebreaker modal should now be visible");
 
     // Handle confirmation
     const handleConfirm = () => {
@@ -263,7 +241,6 @@ function promptTiebreaker(players) {
         'input[name="tiebreaker-player"]:checked'
       );
       if (selected) {
-        console.log("Tiebreaker confirmed:", selected.value);
         modal.classList.add("hidden");
         modal.style.display = "none";
         resolve(selected.value);
@@ -278,22 +255,15 @@ function promptTiebreaker(players) {
 }
 
 function showReviewConfirmation(gameData) {
-  console.log("showReviewConfirmation called");
   const form = document.getElementById("submit-game-form");
   const reviewConfirmation = document.getElementById("review-confirmation");
 
   if (!form || !reviewConfirmation) {
-    console.error("Required elements not found", {
-      form: !!form,
-      reviewConfirmation: !!reviewConfirmation,
-    });
     return;
   }
 
-  console.log("Hiding form and showing review confirmation");
   // Hide form
   form.style.display = "none";
-  console.log("Form display set to none");
 
   // Format date
   const dateObj = new Date(gameData.date + "T00:00:00");
@@ -427,15 +397,8 @@ function showReviewConfirmation(gameData) {
   }
 
   // Show review
-  console.log("Removing hidden class from review-confirmation");
   reviewConfirmation.classList.remove("hidden");
   reviewConfirmation.style.display = "block";
-  console.log("Review confirmation should now be visible");
-  console.log("Review confirmation classes:", reviewConfirmation.className);
-  console.log(
-    "Review confirmation display:",
-    window.getComputedStyle(reviewConfirmation).display
-  );
 }
 
 function showMessage(text, type = "info") {

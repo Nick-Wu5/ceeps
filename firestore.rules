@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Games collection - public read and write
+    match /games/{gameId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Individual game stats - public read and write
+    match /individual_game_stats/{statId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Player stats - public read and write
+    match /player_stats/{playerName} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Hall of Fame - public read, write allowed
+    // (Admin password check is handled client-side)
+    match /hall_of_fame/{photoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

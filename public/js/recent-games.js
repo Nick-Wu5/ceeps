@@ -27,15 +27,12 @@ window.loadRecentGames = async function (page) {
       true
     );
 
-    console.log("API Response:", response); // Debug log
-
     // Handle response format - should be { games: [], total: number } when includeTotal is true
     let games;
     if (Array.isArray(response)) {
       // Old format (array) - shouldn't happen when includeTotal is true, but handle it
       games = response;
       totalGames = games.length;
-      console.warn("Received array format instead of object format");
     } else if (response && response.games) {
       // New format with games and total
       games = response.games;
@@ -46,10 +43,6 @@ window.loadRecentGames = async function (page) {
       games = [];
       totalGames = 0;
     }
-
-    console.log("Games array:", games);
-    console.log("Total games:", totalGames);
-    console.log("Current page:", page);
 
     if (games.length === 0) {
       container.innerHTML =
@@ -76,21 +69,12 @@ window.loadRecentGames = async function (page) {
 function renderPagination() {
   const paginationContainer = document.getElementById("pagination-container");
   if (!paginationContainer) {
-    console.error("Pagination container not found!");
     return;
   }
 
   const totalPages = Math.ceil(totalGames / gamesPerPage);
 
-  console.log(
-    "Rendering pagination - Total games:",
-    totalGames,
-    "Total pages:",
-    totalPages
-  );
-
   if (totalPages <= 1) {
-    console.log("Only 1 page or less, hiding pagination");
     paginationContainer.innerHTML = "";
     return;
   }
@@ -184,7 +168,6 @@ function renderPagination() {
 
   paginationHTML += "</div>";
   paginationContainer.innerHTML = paginationHTML;
-  console.log("Pagination HTML set:", paginationHTML.substring(0, 200));
 }
 
 function createGameCard(game) {

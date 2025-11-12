@@ -38,3 +38,15 @@ build/
 *.tmp
 .cache/
 
+# Uploaded images
+public/admin/hall-of-fame/*.jpeg
+public/admin/hall-of-fame/*.jpg
+public/admin/hall-of-fame/*.png
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+

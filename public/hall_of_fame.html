@@ -46,13 +46,29 @@
       </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script>
+    
+    <!-- Initialize Firebase -->
+    <script>
+      firebase.initializeApp(window.firebaseConfig);
+      window.db = firebase.firestore();
+      window.storage = firebase.storage();
+    </script>
+    
+    <!-- Firebase Service -->
+    <script src="js/firebase-service.js"></script>
+    
     <script>
       async function loadHallOfFame() {
         const container = document.getElementById("hall-of-fame-grid");
         try {
-          const response = await fetch("/api/hall-of-fame");
-          if (!response.ok) throw new Error("Failed to load photos");
-          const photos = await response.json();
+          const photos = await window.ceepsAPI.getHallOfFame();
 
           if (photos.length === 0) {
             container.innerHTML =
@@ -62,23 +78,25 @@
 
           container.innerHTML = photos
             .map(
-              (photo) => `
+              (photo) => {
+                // Use image_url if available (Firebase Storage), otherwise fallback to local path
+                const imageSrc = photo.image_url || `images/hall-of-fame/${photo.image_filename || ''}`;
+                return `
                     <div class="bg-black bg-opacity-70 p-4 rounded-lg shadow-xl hover:shadow-2xl transition-shadow">
                         <img 
-                            src="images/hall-of-fame/${photo.image_filename}" 
+                            src="${imageSrc}" 
                             alt="${photo.caption.replace(/"/g, "&quot;")}"
                             class="w-full h-64 object-cover rounded mb-3 cursor-pointer hover:opacity-90 transition-opacity"
-                            onclick="openLightbox('images/hall-of-fame/${
-                              photo.image_filename
-                            }', '${photo.caption
-                .replace(/'/g, "\\'")
-                .replace(/"/g, "&quot;")}')"
+                            onclick="openLightbox('${imageSrc}', '${photo.caption
+                  .replace(/'/g, "\\'")
+                  .replace(/"/g, "&quot;")}')"
                         >
                         <p class="text-white text-center font-semibold">${
                           photo.caption
                         }</p>
                     </div>
-                `
+                `;
+              }
             )
             .join("");
         } catch (error) {
