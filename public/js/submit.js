@@ -11,42 +11,159 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load existing players for autocomplete
   loadPlayers();
 
+  // Setup cup input field behavior: clear 0 on focus, restore 0 on blur if empty
+  setupCupInputs();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     try {
       // Collect form data
       const formData = new FormData(form);
-      const team1 = [
+
+      // Validate date is >= August 25, 2025
+      const dateInput = formData.get("date");
+      const minDate = new Date("2025-08-25");
+      const selectedDate = new Date(dateInput);
+
+      if (selectedDate < minDate) {
+        showMessage(
+          "Date must be August 25, 2025 or later (academic semester only).",
+          "error"
+        );
+        return;
+      }
+      let team1 = [
         formData.get("team1_player1"),
         formData.get("team1_player2"),
         formData.get("team1_player3"),
         formData.get("team1_player4"),
       ];
-      const team2 = [
+      let team2 = [
         formData.get("team2_player1"),
         formData.get("team2_player2"),
         formData.get("team2_player3"),
         formData.get("team2_player4"),
       ];
 
+      // Trim all player names
+      team1 = team1.map((p) => (p ? p.trim() : ""));
+      team2 = team2.map((p) => (p ? p.trim() : ""));
+      const allPlayers = [...team1, ...team2];
+
+      // Validate: Check for empty player slots
+      if (team1.some((p) => !p) || team2.some((p) => !p)) {
+        showMessage(
+          "All player slots must be filled. Please enter a player name for each slot.",
+          "error"
+        );
+        return;
+      }
+
+      // Validate: Check for duplicate players (except Guest can appear twice)
+      const playerCounts = {};
+      allPlayers.forEach((player) => {
+        if (player) {
+          playerCounts[player] = (playerCounts[player] || 0) + 1;
+        }
+      });
+
+      // Check if Guest appears more than twice
+      if (playerCounts["Guest"] && playerCounts["Guest"] > 2) {
+        showMessage(
+          "Guest can only appear twice per game (once per team maximum).",
+          "error"
+        );
+        return;
+      }
+
+      // Check for duplicate non-Guest players
+      const duplicates = Object.entries(playerCounts)
+        .filter(([name, count]) => {
+          // Guest can appear twice, others cannot
+          return name !== "Guest" && count > 1;
+        })
+        .map(([name]) => name);
+
+      if (duplicates.length > 0) {
+        showMessage(
+          `Duplicate player(s): ${duplicates.join(
+            ", "
+          )}. Each player (except Guest) can only appear once per game.`,
+          "error"
+        );
+        return;
+      }
+
+      // Validate: Check all players are in preset list
+      try {
+        const presetPlayers = await window.ceepsAPI.getPresetPlayers();
+        const invalidPlayers = allPlayers.filter(
+          (player) => player && !presetPlayers.includes(player)
+        );
+
+        if (invalidPlayers.length > 0) {
+          const invalidNames = invalidPlayers.join(", ");
+          showMessage(
+            `Invalid player name(s): ${invalidNames}. Please use only players from the preset list.`,
+            "error"
+          );
+          return;
+        }
+      } catch (error) {
+        console.error("Error validating players:", error);
+        showMessage(
+          "Error validating player names. Please try again.",
+          "error"
+        );
+        return;
+      }
+
       // Collect individual stats
       const individualStats = {};
-      const allPlayers = [...team1, ...team2];
 
       allPlayers.forEach((playerName, index) => {
         if (playerName) {
           const team = index < 4 ? "team1" : "team2";
           const playerNum = (index % 4) + 1;
+          const cupsInput = formData.get(`${team}_player${playerNum}_cups`);
+          // Parse cups value, defaulting to 0 if empty or invalid
+          const cupsValue =
+            cupsInput && cupsInput.trim() !== ""
+              ? parseInt(cupsInput.trim(), 10)
+              : 0;
+
           individualStats[playerName] = {
-            cups_hit: parseInt(
-              formData.get(`${team}_player${playerNum}_cups`) || 0
-            ),
+            cups_hit: cupsValue,
             naked_laps: 0, // Will be set in confirmation screen
-            team: team,
           };
         }
       });
+
+      // Validate: Cup values are valid (non-negative, integers, not NaN)
+      const invalidCups = [];
+      allPlayers.forEach((playerName) => {
+        const cups = individualStats[playerName]?.cups_hit;
+        // Check if cups is a valid non-negative integer
+        if (
+          cups === undefined ||
+          cups === null ||
+          isNaN(cups) ||
+          cups < 0 ||
+          !Number.isInteger(cups)
+        ) {
+          invalidCups.push(playerName);
+        }
+      });
+
+      if (invalidCups.length > 0) {
+        const invalidNames = invalidCups.join(", ");
+        showMessage(
+          `Invalid cup values for player(s): ${invalidNames}. Cups must be non-negative integers.`,
+          "error"
+        );
+        return;
+      }
 
       // Calculate team scores
       const team1_score = team1.reduce((sum, player) => {
@@ -55,6 +172,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const team2_score = team2.reduce((sum, player) => {
         return sum + (individualStats[player]?.cups_hit || 0);
       }, 0);
+
+      // Validate: At least one team must have 55+ cups
+      if (team1_score < 55 && team2_score < 55) {
+        showMessage(
+          "At least one team must have 55 or more cups to submit a game.",
+          "error"
+        );
+        return;
+      }
 
       // Auto-calculate winner
       let winner;
@@ -105,6 +231,11 @@ document.addEventListener("DOMContentLoaded", () => {
         individual_stats: individualStats,
       };
 
+      // Collect photo file (if provided)
+      const photoFile = formData.get("game_photo");
+      window.pendingPhotoFile =
+        photoFile && photoFile.size > 0 ? photoFile : null;
+
       // Store game data for final submission
       window.pendingGameData = gameData;
 
@@ -150,19 +281,19 @@ document.addEventListener("DOMContentLoaded", () => {
           const nakedLaps = parseInt(input.value) || 0;
           window.pendingGameData.individual_stats[player].naked_laps =
             nakedLaps;
-          // Also set naked_lap boolean for API compatibility (true if > 0)
-          window.pendingGameData.individual_stats[player].naked_lap =
-            nakedLaps > 0;
         }
       });
 
       try {
         showMessage("Submitting game result...", "info");
         const result = await window.ceepsAPI.submitGameResult(
-          window.pendingGameData
+          window.pendingGameData,
+          window.pendingPhotoFile || null
         );
 
         if (result.success) {
+          // Clear pending photo file
+          window.pendingPhotoFile = null;
           // Redirect to home page immediately
           window.location.href = "home.html";
         }
@@ -257,13 +388,17 @@ function promptTiebreaker(players) {
 function showReviewConfirmation(gameData) {
   const form = document.getElementById("submit-game-form");
   const reviewConfirmation = document.getElementById("review-confirmation");
+  const messageDiv = document.getElementById("message");
 
   if (!form || !reviewConfirmation) {
     return;
   }
 
-  // Hide form
+  // Hide form and clear any error messages
   form.style.display = "none";
+  if (messageDiv) {
+    messageDiv.classList.add("hidden");
+  }
 
   // Format date
   const dateObj = new Date(gameData.date + "T00:00:00");
@@ -401,12 +536,47 @@ function showReviewConfirmation(gameData) {
   reviewConfirmation.style.display = "block";
 }
 
+function setupCupInputs() {
+  // Get all cup input fields
+  const cupInputs = document.querySelectorAll(
+    'input[type="number"][name*="_cups"]'
+  );
+
+  cupInputs.forEach((input) => {
+    // Clear 0 when user focuses on the field
+    input.addEventListener("focus", (e) => {
+      if (e.target.value === "0") {
+        e.target.value = "";
+      }
+    });
+
+    // Restore 0 if field is empty when user leaves it
+    input.addEventListener("blur", (e) => {
+      if (e.target.value === "" || e.target.value === null) {
+        e.target.value = "0";
+      }
+    });
+  });
+}
+
 function showMessage(text, type = "info") {
   const messageDiv = document.getElementById("message");
   if (!messageDiv) return;
 
   messageDiv.textContent = text;
-  messageDiv.className = `message message-${type}`;
+
+  // Set styling based on type
+  if (type === "error") {
+    messageDiv.className =
+      "mb-4 p-4 rounded text-red-500 bg-red-900 bg-opacity-70 border-2 border-red-500";
+  } else if (type === "success") {
+    messageDiv.className =
+      "mb-4 p-4 rounded text-green-500 bg-green-900 bg-opacity-70 border-2 border-green-500";
+  } else {
+    messageDiv.className =
+      "mb-4 p-4 rounded text-orange-500 bg-orange-900 bg-opacity-70 border-2 border-orange-500";
+  }
+
   messageDiv.classList.remove("hidden");
 
   if (type === "success") {

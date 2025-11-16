@@ -7,12 +7,6 @@ service cloud.firestore {
       allow write: if true;
     }
     
-    // Individual game stats - public read and write
-    match /individual_game_stats/{statId} {
-      allow read: if true;
-      allow write: if true;
-    }
-    
     // Player stats - public read and write
     match /player_stats/{playerName} {
       allow read: if true;
@@ -22,6 +16,13 @@ service cloud.firestore {
     // Hall of Fame - public read, write allowed
     // (Admin password check is handled client-side)
     match /hall_of_fame/{photoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Players preset list - public read, write allowed
+    // (Admin password check is handled client-side)
+    match /players/preset_list {
       allow read: if true;
       allow write: if true;
     }

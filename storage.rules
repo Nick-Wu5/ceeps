@@ -9,6 +9,12 @@ service firebase.storage {
       allow write: if true;
     }
     
+    // Game photos - public read, write allowed
+    match /game-photos/{allPaths=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
     // Block everything else
     match /{allPaths=**} {
       allow read, write: if false;

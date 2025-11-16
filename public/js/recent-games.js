@@ -193,7 +193,7 @@ function createGameCard(game) {
           <ul class="list-none space-y-1">
             ${winnerTeam
               .map((player) => {
-                const cupsHit = individualStats[player] || 0;
+                const cupsHit = individualStats[player]?.cups_hit || 0;
                 return `<li class="text-white">${player} - ${cupsHit} cups</li>`;
               })
               .join("")}
@@ -204,7 +204,7 @@ function createGameCard(game) {
           <ul class="list-none space-y-1">
             ${loserTeam
               .map((player) => {
-                const cupsHit = individualStats[player] || 0;
+                const cupsHit = individualStats[player]?.cups_hit || 0;
                 return `<li class="text-white">${player} - ${cupsHit} cups</li>`;
               })
               .join("")}
@@ -217,9 +217,52 @@ function createGameCard(game) {
           game.scorecard_player
         }</span></p>
       </div>
+      
+      ${game.photo_url ? `
+        <div class="mt-4">
+          <img 
+            src="${game.photo_url}" 
+            alt="Game photo"
+            class="game-photo-thumbnail cursor-pointer hover:opacity-80 transition-opacity"
+            onclick="openPhotoLightbox('${game.photo_url}')"
+          />
+        </div>
+      ` : ''}
     </div>
   `;
 }
+
+// Photo lightbox functions
+function openPhotoLightbox(photoUrl) {
+  const lightbox = document.getElementById("photo-lightbox");
+  const image = document.getElementById("lightbox-image");
+  if (lightbox && image) {
+    image.src = photoUrl;
+    lightbox.classList.remove("hidden");
+    // Prevent body scroll when lightbox is open
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closePhotoLightbox() {
+  const lightbox = document.getElementById("photo-lightbox");
+  if (lightbox) {
+    lightbox.classList.add("hidden");
+    // Restore body scroll
+    document.body.style.overflow = "";
+  }
+}
+
+// Make functions globally accessible
+window.openPhotoLightbox = openPhotoLightbox;
+window.closePhotoLightbox = closePhotoLightbox;
+
+// Close lightbox on ESC key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closePhotoLightbox();
+  }
+});
 
 function formatDate(dateString) {
   try {

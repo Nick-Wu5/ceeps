@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Manage Players - Century Pong</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-6xl">
+      <header class="page-header">
+        <h1 class="text-4xl">
+          <span class="page-title">Manage Players</span>
+        </h1>
+        <div class="mt-4">
+          <a
+            href="hall-of-fame.html"
+            class="nav-button bg-purple-600 hover:bg-purple-700 inline-block"
+          >
+            Hall of Fame Admin
+          </a>
+        </div>
+      </header>
+
+      <!-- Login Section -->
+      <div
+        id="login-section"
+        class="bg-black bg-opacity-70 p-6 rounded-lg shadow-xl mb-6"
+      >
+        <h2 class="text-2xl font-bold text-orange-500 mb-4">Admin Login</h2>
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-orange-500 font-bold mb-2">Password</label>
+            <input
+              type="password"
+              id="admin-password"
+              required
+              class="form-input"
+            />
+          </div>
+          <button
+            type="submit"
+            class="nav-button bg-green-600 hover:bg-green-700"
+          >
+            Login
+          </button>
+        </form>
+        <div id="login-message" class="mt-4 text-red-500 hidden"></div>
+      </div>
+
+      <!-- Admin Panel (hidden until logged in) -->
+      <div id="admin-panel" class="hidden">
+        <!-- Add Player Form -->
+        <div class="bg-black bg-opacity-70 p-6 rounded-lg shadow-xl mb-6">
+          <h2 class="text-2xl font-bold text-orange-500 mb-4">Add Player</h2>
+          <form id="add-player-form" class="space-y-4">
+            <div>
+              <label class="block text-orange-500 font-bold mb-2"
+                >Player Name</label
+              >
+              <input
+                type="text"
+                id="add-player-input"
+                placeholder="Enter player name..."
+                required
+                class="form-input"
+              />
+            </div>
+            <button
+              type="submit"
+              class="nav-button bg-green-600 hover:bg-green-700"
+            >
+              Add Player
+            </button>
+          </form>
+          <div id="add-message" class="mt-4 hidden"></div>
+        </div>
+
+        <!-- Bulk Import -->
+        <div class="bg-black bg-opacity-70 p-6 rounded-lg shadow-xl mb-6">
+          <h2 class="text-2xl font-bold text-orange-500 mb-4">Bulk Import</h2>
+          <form id="bulk-import-form" class="space-y-4">
+            <div>
+              <label class="block text-orange-500 font-bold mb-2"
+                >Player Names (comma-separated)</label
+              >
+              <textarea
+                id="bulk-import-input"
+                placeholder="Player1, Player2, Player3..."
+                rows="4"
+                class="form-input"
+              ></textarea>
+              <p class="text-sm text-gray-400 mt-1">
+                Enter player names separated by commas
+              </p>
+            </div>
+            <button
+              type="submit"
+              class="nav-button bg-blue-600 hover:bg-blue-700"
+            >
+              Import Players
+            </button>
+          </form>
+          <div id="bulk-message" class="mt-4 hidden"></div>
+        </div>
+
+        <!-- Current Players List -->
+        <div class="bg-black bg-opacity-70 p-6 rounded-lg shadow-xl">
+          <h2 class="text-2xl font-bold text-orange-500 mb-4">
+            Current Players (<span id="player-count">0</span>)
+          </h2>
+          <div id="players-list" class="space-y-2">
+            <!-- Players will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="back-button-container">
+        <a href="../home.html" class="nav-button">Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="../js/firebase-config.js"></script>
+
+    <!-- Initialize Firebase -->
+    <script>
+      firebase.initializeApp(window.firebaseConfig);
+      window.db = firebase.firestore();
+      window.storage = firebase.storage();
+    </script>
+
+    <!-- Firebase Service -->
+    <script src="../js/firebase-service.js"></script>
+    <script src="../js/admin-players.js"></script>
+    <script src="../js/random-background.js"></script>
+  </body>
+</html>

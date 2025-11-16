@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Submit Results - Century Pong</title>
     <link rel="stylesheet" href="styles.css" />
-  </head>
+</head>
   <body class="flex flex-col items-center min-h-screen">
     <div class="page-wrapper max-w-6xl">
       <header class="page-header">
         <h1 class="text-4xl">
           <span class="page-title">Submit Game Results</span>
-        </h1>
-      </header>
+            </h1>
+        </header>
 
       <div id="message" class="hidden mb-4 p-4 rounded"></div>
 
@@ -136,9 +136,27 @@
             type="date"
             name="date"
             id="date-input"
+            min="2025-08-25"
             required
             class="form-input"
           />
+        </div>
+
+        <!-- Photo Upload (Optional) -->
+        <div>
+          <label class="block text-orange-500 font-bold mb-2">
+            Game Photo (Optional)
+          </label>
+          <input
+            type="file"
+            name="game_photo"
+            id="game-photo-input"
+            accept="image/*"
+            class="form-input"
+          />
+          <p class="text-sm text-gray-400 mt-1">
+            Upload a photo from this game (optional)
+          </p>
         </div>
 
         <!-- Teams with Combined Player + Stats -->
@@ -388,5 +406,5 @@
     <script src="js/firebase-service.js"></script>
     <script src="js/submit.js"></script>
     <script src="js/random-background.js"></script>
-  </body>
+</body>
 </html>
