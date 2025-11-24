@@ -9,7 +9,10 @@
 @layer components {
   /* Navigation Button */
   .nav-button {
-    @apply no-underline text-black bg-orange-500 font-bold py-2.5 px-5 border-2 border-orange-500 rounded transition-all duration-300 text-center;
+    font-family: "Jersey 20", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    @apply text-2xl no-underline text-white bg-orange-500 py-2.5 px-5 border-2 border-orange-500 transition-all duration-300 text-center rounded-md;
   }
 
   .nav-button:hover {
@@ -18,7 +21,7 @@
 
   /* Hero button variant - larger, more prominent */
   .nav-button.hero {
-    @apply text-xl py-4 px-8 w-full max-w-md;
+    @apply text-4xl py-4 px-8 w-full max-w-md;
   }
 
   /* Game and Stat Cards */
@@ -64,8 +67,66 @@
   /* Component Classes */
   /* Home page title */
   .site-title {
-    font-family: "Russo One", sans-serif;
-    @apply text-5xl leading-none bg-black text-orange-500 px-4 py-2 rounded inline-block m-0;
+    font-family: "Londrina Solid", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    @apply text-7xl leading-none text-white inline-block m-0 mx-auto;
+    background-image: url("images/scorecard.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 8rem 8rem;
+    position: relative;
+
+    /* Animation variables - adjust these easily! */
+    --bob-intensity: 40px; /* How high the bob goes */
+    --bob-mid-intensity: 30px; /* Mid-point bob height */
+    --spin-duration: 20s; /* How long one full rotation takes */
+
+    animation: bobAndSpin var(--spin-duration) linear infinite;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes bobAndSpin {
+    0% {
+      transform: translateY(0) rotateY(0deg);
+    }
+    8.33% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(30deg);
+    }
+    16.67% {
+      transform: translateY(calc(var(--bob-intensity) * -1)) rotateY(60deg); /* Peak 1 */
+    }
+    25% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(90deg);
+    }
+    33.33% {
+      transform: translateY(0) rotateY(120deg);
+    }
+    41.67% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(150deg);
+    }
+    50% {
+      transform: translateY(calc(var(--bob-intensity) * -1)) rotateY(180deg); /* Peak 2 */
+    }
+    58.33% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(210deg);
+    }
+    66.67% {
+      transform: translateY(0) rotateY(240deg);
+    }
+    75% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(270deg);
+    }
+    83.33% {
+      transform: translateY(calc(var(--bob-intensity) * -1)) rotateY(300deg); /* Peak 3 */
+    }
+    91.67% {
+      transform: translateY(calc(var(--bob-mid-intensity) * -1)) rotateY(330deg);
+    }
+    100% {
+      transform: translateY(0) rotateY(360deg);
+    }
   }
 
   /* Standard page titles - replaces hub-header span pattern */
@@ -75,15 +136,16 @@
 
   /* Site footer */
   .site-footer {
-    @apply mt-auto pt-8 pb-4 text-sm text-orange-500 text-center;
+    font-family: "Londrina Solid", sans-serif;
+    @apply mt-auto pt-8 pb-4 text-white text-xl text-center;
   }
 
   .site-footer a {
-    @apply text-orange-500 underline ml-2;
+    @apply text-white underline ml-2;
   }
 
   .site-footer a:hover {
-    color: rgb(251 146 60);
+    color: rgb(255, 170, 101);
   }
 
   /* Standardized form input fields */
@@ -126,9 +188,4 @@
  * - Layout utilities (flex, grid, spacing)
  * - Responsive breakpoints (md:, lg:, etc.)
  * - One-off adjustments and positioning
- * 
- * Deprecated classes (removed):
- * - .ceeps-header (no longer used)
- * - .hub-header (replaced by .page-title)
- * - .content-container (replaced by .page-wrapper)
  */

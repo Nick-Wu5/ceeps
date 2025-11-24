@@ -9,6 +9,8 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Arial", "sans-serif"],
+        "jersey-20": ["Jersey 20", "sans-serif"],
+        "londrina-solid": ["Londrina Solid", "sans-serif"],
       },
     },
   },
