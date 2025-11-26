@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  loadLeaderboard("win_ratio");
+  loadLeaderboard("cups_hit_avg");
 });
 
-async function loadLeaderboard(sortBy = "win_ratio") {
+async function loadLeaderboard(sortBy = "cups_hit_avg") {
   const container = document.getElementById("leaderboard-container");
   if (!container) return;
 

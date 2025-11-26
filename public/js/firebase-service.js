@@ -344,8 +344,14 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
     let useSecondaryOrderBy = true;
 
     switch (sortBy) {
+      case "cups_hit_avg":
+        orderByField = "cups_hit_avg";
+        break;
       case "total_cups":
         orderByField = "total_cups_hit";
+        break;
+      case "total_wins":
+        orderByField = "games_won";
         break;
       case "games_played":
         // When sorting by games_played, we can't use it twice
@@ -412,9 +418,17 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
 
       // Get primary sort value
       switch (sortBy) {
+        case "cups_hit_avg":
+          primaryValueA = a.cups_hit_avg;
+          primaryValueB = b.cups_hit_avg;
+          break;
         case "win_ratio":
           primaryValueA = a.win_ratio;
           primaryValueB = b.win_ratio;
+          break;
+        case "total_wins":
+          primaryValueA = a.games_won;
+          primaryValueB = b.games_won;
           break;
         case "total_cups":
           primaryValueA = a.total_cups_hit;
@@ -429,8 +443,8 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
           primaryValueB = b.number_of_scorecards;
           break;
         default:
-          primaryValueA = a.win_ratio;
-          primaryValueB = b.win_ratio;
+          primaryValueA = a.cups_hit_avg;
+          primaryValueB = b.cups_hit_avg;
       }
 
       // Primary sort (descending)

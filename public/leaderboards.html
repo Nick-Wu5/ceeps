@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leaderboards - Century Pong</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,53 +10,56 @@
       href="https://fonts.googleapis.com/css2?family=Jersey+20&family=Londrina+Solid:wght@100;300;400;900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body class="flex flex-col items-center min-h-screen">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="flex flex-col items-center min-h-screen">
     <div class="page-wrapper max-w-6xl">
-        <header class="page-header">
-            <h1 class="text-4xl">
-                <span class="page-title">Leaderboards</span>
-            </h1>
-        </header>
-        
-        <div class="mb-6">
-            <label class="block text-orange-500 font-bold mb-2">Sort by:</label>
-            <select id="sort-by" class="form-select">
-                <option value="win_ratio">Win Rate</option>
-                <option value="total_cups">Total Cups</option>
-                <option value="games_played">Games Played</option>
-                <option value="scorecards">Scorecards</option>
-            </select>
-        </div>
+      <header class="page-header">
+        <h1 class="text-4xl">
+          <span class="page-title">Leaderboards</span>
+        </h1>
+      </header>
 
-        <div id="leaderboard-container">
-            <!-- Leaderboard will be loaded here -->
+      <div class="mb-6">
+        <div class="form-select-wrapper">
+          <select id="sort-by" class="form-select">
+            <option value="cups_hit_avg">Average Cups</option>
+            <option value="total_cups">Total Cups</option>
+            <option value="win_ratio">Win Rate</option>
+            <option value="total_wins">Total Wins</option>
+            <option value="games_played">Games Played</option>
+            <option value="scorecards">Scorecards</option>
+          </select>
         </div>
+      </div>
 
-        <div class="back-button-container">
-            <a href="home.html" class="nav-button">Back to Home</a>
-        </div>
+      <div id="leaderboard-container">
+        <!-- Leaderboard will be loaded here -->
+      </div>
+
+      <div class="back-button-container">
+        <a href="home.html" class="nav-button">Back to Home</a>
+      </div>
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
+
     <!-- Firebase Config -->
     <script src="js/firebase-config.js"></script>
-    
+
     <!-- Initialize Firebase -->
     <script>
       firebase.initializeApp(window.firebaseConfig);
       window.db = firebase.firestore();
       window.storage = firebase.storage();
     </script>
-    
+
     <!-- Firebase Service (replaces api.js) -->
     <script src="js/firebase-service.js"></script>
     <script src="js/leaderboard.js"></script>
     <script src="js/random-background.js"></script>
-</body>
+  </body>
 </html>

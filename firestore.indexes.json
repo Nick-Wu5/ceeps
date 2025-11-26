@@ -104,6 +104,20 @@
       ]
     },
     {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "games_won",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "games",
       "queryScope": "COLLECTION",
       "fields": [

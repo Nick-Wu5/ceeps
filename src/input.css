@@ -12,11 +12,39 @@
     font-family: "Jersey 20", sans-serif;
     font-weight: 400;
     font-style: normal;
-    @apply text-2xl no-underline text-white bg-orange-500 py-2.5 px-5 border-2 border-orange-500 transition-all duration-300 text-center rounded-md;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    @apply text-2xl no-underline text-white py-2.5 px-5 text-center relative;
+
+    /* Outer rectangle */
+    background-color: #d2690d;
+    border: 3px solid #000000;
+    display: inline-block;
+
+    /* Add transition to base state - this makes it smooth both ways */
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+    --inset: 6px;
+
+    /* Inner rectangle */
+    &::before {
+      content: "";
+      position: absolute;
+      top: var(--inset);
+      left: var(--inset);
+      right: var(--inset);
+      bottom: var(--inset);
+      background-color: #e18e45;
+      border: 2px solid #000000;
+      z-index: -1;
+    }
+
+    /* Text on top of inner rectangle */
+    z-index: 1;
   }
 
   .nav-button:hover {
-    @apply bg-black text-orange-500;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
   }
 
   /* Hero button variant - larger, more prominent */
@@ -81,7 +109,7 @@
     /* Animation variables - adjust these easily! */
     --bob-intensity: 40px; /* How high the bob goes */
     --bob-mid-intensity: 30px; /* Mid-point bob height */
-    --spin-duration: 20s; /* How long one full rotation takes */
+    --spin-duration: 10s; /* How long one full rotation takes */
 
     animation: bobAndSpin var(--spin-duration) linear infinite;
     transform-style: preserve-3d;
@@ -131,7 +159,12 @@
 
   /* Standard page titles - replaces hub-header span pattern */
   .page-title {
-    @apply text-4xl leading-10 mb-4 rounded bg-orange-500 text-black px-2.5 py-0 inline-block;
+    @apply text-6xl leading-10 text-white pt-4 inline-block;
+
+    text-decoration: underline;
+    font-family: "Jersey 20", sans-serif;
+    font-weight: 400;
+    font-style: normal;
   }
 
   /* Site footer */
@@ -154,10 +187,91 @@
     background-color: rgb(0 0 0 / 0.5);
   }
 
+  /* Select wrapper for inner rectangle and custom arrow */
+  .form-select-wrapper {
+    position: relative;
+    display: inline-block;
+    --inset: 4px;
+    background-color: #d2690d; /* Outer rectangle background */
+    border: 3px solid #000000; /* Outer rectangle border */
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .form-select-wrapper:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Inner rectangle on wrapper */
+  .form-select-wrapper::before {
+    content: "";
+    position: absolute;
+    top: var(--inset);
+    left: var(--inset);
+    right: var(--inset);
+    bottom: var(--inset);
+    background-color: #e18e45;
+    border: 2px solid #000000;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Custom arrow icon on wrapper */
+  .form-select-wrapper::after {
+    content: "▼";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 10;
+    transition: transform 0.3s ease;
+  }
+
+  /* Rotate arrow up on hover */
+  .form-select-wrapper:hover::after {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
   /* Standardized select dropdowns */
   .form-select {
-    @apply p-2 rounded text-white border border-orange-500;
-    background-color: rgb(0 0 0 / 0.5);
+    font-family: "Jersey 20", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    @apply text-xl text-white py-2.5 px-4 relative;
+
+    /* Transparent background so inner rectangle shows through */
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+
+    /* Hide default browser arrow */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* Add transition */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* Text on top of inner rectangle */
+    z-index: 2;
+    padding-right: 2.5rem; /* Make room for arrow */
+  }
+
+  .form-select:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  /* Style the dropdown options */
+  .form-select option {
+    background-color: #d2690d;
+    color: white;
+    padding: 0.5rem;
   }
 
   /* Utility Classes */
