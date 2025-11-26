@@ -335,7 +335,11 @@ async function getPlayerStats(playerName) {
 }
 
 // Get leaderboard
-async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
+async function getLeaderboard(
+  sortBy = "win_ratio",
+  limit = 20,
+  pledgeClass = null
+) {
   const db = ensureFirebase();
   const firestore = getFirestore();
 
@@ -372,6 +376,11 @@ async function getLeaderboard(sortBy = "win_ratio", limit = 20) {
     let query = firestore
       .collection("player_stats")
       .where("games_played", ">", 0);
+
+    // Filter by pledge class if provided
+    if (pledgeClass !== null) {
+      query = query.where("pledge_class", "==", parseInt(pledgeClass));
+    }
 
     if (useSecondaryOrderBy) {
       query = query

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Pledge Classes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #d2690d;
+      color: white;
+      border: 2px solid #000;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #e18e45;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+  </style>
+</head>
+<body>
+  <h1>Update Player Pledge Classes</h1>
+  <button id="updateBtn">Update All Players</button>
+  <div id="output"></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="../js/firebase-config.js"></script>
+  
+  <script>
+    // Initialize Firebase
+    firebase.initializeApp(window.firebaseConfig);
+    const db = firebase.firestore();
+
+    // Player data with pledge classes
+    const players = {
+      "AJ Celleghin": 25,
+      "Adam Wolf": 25,
+      "Alex Mithoefer": 23,
+      "Anderson Howell": 23,
+      "Anderson Varner": 25,
+      "Andrew Coots": 23,
+      "Andrew Kinder": 22,
+      "Andrew York": 24,
+      "Andy Sun": 24,
+      "Arjun Kalath": 25,
+      "Ashton Dorris": 25,
+      "Austin Knott": 23,
+      "Beck Moreau": 23,
+      "Ben Malek": 24,
+      "Bennett Viertel": 22,
+      "Blakely Harrison": 25,
+      "Brayden Wilson": 23,
+      "Brenden Estus": 24,
+      "Briggs Butler": 22,
+      "Brock Austel": 25,
+      "Brock Reding": 22,
+      "Cam Mullen": 25,
+      "Cameron Collins": 25,
+      "Cannon Morton": 23,
+      "Carter Bell": 24,
+      "Charlie Janak": 23,
+      "Charlie Orris": 23,
+      "Chase Koester": 24,
+      "Chris Casler": 25,
+      "Cody Bozell": 24,
+      "Cole Louden": 24,
+      "Cole Mauch": 23,
+      "Colin Ryan": 24,
+      "Damon Smiley": 24,
+      "Dan Tryder": 23,
+      "Daniel Vengraitis": 23,
+      "Danny Maka": 23,
+      "David Brunner": 23,
+      "Decker Anderson": 22,
+      "Denver Bush": 22,
+      "Drew Flanders": 25,
+      "Drew Horvath": 25,
+      "EJ Rudolph-Harris": 24,
+      "Eli Fangman": 24,
+      "Eli Nieshalla": 25,
+      "Elliott Sato": 25,
+      "Ethan Wittmann": 23,
+      "Ethan Wood": 24,
+      "Evan Dickinson": 22,
+      "Evan Federle": 22,
+      "Gabe Chambers": 22,
+      "Garrick Addison": 24,
+      "Gavin Bowman": 25,
+      "Gavin Connolly": 23,
+      "Gavin Rieck": 25,
+      "George Ostrowski": 25,
+      "George Pappas": 22,
+      "Gus Dorsel": 25,
+      "Guy Griffey": 22,
+      "Hayden Ferguson": 22,
+      "Hayden Shelly": 25,
+      "Henry Balagtas": 23,
+      "Henry Boyd": 25,
+      "Henry Claypool": 24,
+      "Hunter Austel": 23,
+      "Isaac Inn": 22,
+      "Isaiah Hamilton": 25,
+      "JC Hernandez": 23,
+      "Jack Erickson": 22,
+      "Jack Markos": 24,
+      "Jack Murrell": 23,
+      "Jackson Montgomery": 23,
+      "Jackson Schwartz": 25,
+      "Jacob Clark": 23,
+      "Jacob Polackin": 23,
+      "Jake Pilkey": 24,
+      "Jason Lew": 24,
+      "John Litzsinger": 22,
+      "Josh Peek": 24,
+      "Kade Hasen": 24,
+      "Keegan Lynch": 24,
+      "Keegan Steager": 23,
+      "Kieran Ciarletta": 24,
+      "Korbin Butz": 25,
+      "Kota Jameson": 23,
+      "Kyle Collett": 23,
+      "Landon Weyer": 24,
+      "Leo Usher": 22,
+      "Liam Cassidy": 24,
+      "Liam Fahey": 24,
+      "Liam Phillips": 23,
+      "Liam Shepard": 24,
+      "Lucas Ball": 25,
+      "Luke Davis": 25,
+      "Magwire Graybill": 22,
+      "Marcus Manna": 24,
+      "Mark Rapp": 22,
+      "Matthew Etchison": 22,
+      "Matthew Soyka": 23,
+      "Max Arnold": 22,
+      "Max Elliott": 22,
+      "Max Munkholm": 24,
+      "Michael Griffith": 24,
+      "Michael Setiawan": 22,
+      "Nate Balko": 23,
+      "Nate Fox": 25,
+      "Nate Hughes": 22,
+      "Nate Kazunas": 25,
+      "Neil Lapsia": 24,
+      "Nicholas Mates": 22,
+      "Nick Marrano": 25,
+      "Nick Wu": 24,
+      "Noah Perkins": 23,
+      "Nolan Jones": 24,
+      "Owen Munkholm": 22,
+      "Pablo Alatorre": 24,
+      "Parker Perdue": 24,
+      "Parker Slane": 23,
+      "Reece Weyer": 23,
+      "Reid Peterson": 23,
+      "Rhys Garrison": 25,
+      "Rion Montaperto": 24,
+      "Ryan Creager": 23,
+      "Ryan Hartig": 22,
+      "Ryan Lee": 24,
+      "Sam Bishop": 23,
+      "Spencer Luhrs": 24,
+      "Stephen Blaes": 23,
+      "TJ Allan": 23,
+      "Tommy Neil": 23,
+      "Ty Sanders": 23,
+      "Tyler Marcinko": 23,
+      "Wayne Hsieh": 22,
+      "Will Borowski": 23,
+      "Will Schmidt": 24,
+      "Will Strahm": 22,
+      "William Solmos": 23,
+      "Wyatt Boyett": 23,
+      "Zach Laboyteaux": 25
+    };
+
+    const output = document.getElementById("output");
+    
+    function log(message, type = "info") {
+      const div = document.createElement("div");
+      div.className = type;
+      div.textContent = message;
+      output.appendChild(div);
+      console.log(message);
+    }
+
+    async function updatePlayerPledgeClass(playerName, pledgeClass) {
+      try {
+        const playerRef = db.collection("player_stats").doc(playerName);
+        
+        // Use transaction to safely update
+        await db.runTransaction(async (transaction) => {
+          const playerDoc = await transaction.get(playerRef);
+          
+          if (!playerDoc.exists) {
+            log(`⚠️  Player "${playerName}" not found in database`, "error");
+            return;
+          }
+          
+          // Update pledge_class field (won't delete other fields)
+          transaction.update(playerRef, {
+            pledge_class: pledgeClass
+          });
+        });
+        
+        log(`✅ Updated ${playerName} → Pledge Class ${pledgeClass}`, "success");
+        return true;
+      } catch (error) {
+        log(`❌ Error updating ${playerName}: ${error.message}`, "error");
+        return false;
+      }
+    }
+
+    async function updateAllPlayers() {
+      const updateBtn = document.getElementById("updateBtn");
+      updateBtn.disabled = true;
+      updateBtn.textContent = "Updating...";
+      output.innerHTML = "";
+      
+      log(`Starting update for ${Object.keys(players).length} players...`, "info");
+      log("", "info");
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      // Update players sequentially to avoid overwhelming Firestore
+      for (const [playerName, pledgeClass] of Object.entries(players)) {
+        const success = await updatePlayerPledgeClass(playerName, pledgeClass);
+        if (success) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      log("", "info");
+      log(`✅ Completed! Success: ${successCount}, Errors: ${errorCount}`, "success");
+      
+      updateBtn.disabled = false;
+      updateBtn.textContent = "Update All Players";
+    }
+
+    document.getElementById("updateBtn").addEventListener("click", updateAllPlayers);
+  </script>
+</body>
+</html>
+

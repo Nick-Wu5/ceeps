@@ -753,6 +753,56 @@ video {
   margin-top: 1.5rem;
 }
 
+/* Pledge Class Toggle Group */
+
+.pledge-toggle-group {
+  display: inline-flex;
+  background-color: #4b5563;
+  /* gray-600 */
+  border: 3px solid #000000;
+  padding: 4px;
+  /* Creates inset space for buttons */
+  font-family: "Jersey 20", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  gap: 0;
+  /* No gap between buttons */
+}
+
+.pledge-toggle-button {
+  flex: 1;
+  background-color: #e18e45;
+  /* Default state */
+  border: 3px solid #000000;
+  border-left: 0;
+  /* Remove left border to avoid double borders between buttons */
+  color: white;
+  font-size: 1.5rem;
+  /* text-2xl equivalent */
+  padding: 0.2rem 0.625rem;
+  /* py-2.5 px-5 equivalent */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.pledge-toggle-button:first-child {
+  border-left: 3px solid #000000;
+  /* Add left border to first button */
+}
+
+.pledge-toggle-button:hover {
+  background-color: #d2690d;
+}
+
+.pledge-toggle-button.selected {
+  background-color: #d2690d;
+}
+
+.pledge-toggle-button.\!selected {
+  background-color: #d2690d !important;
+}
+
 /* Component Classes */
 
 /* Home page title */
@@ -904,11 +954,12 @@ video {
   position: relative;
   display: inline-block;
   --inset: 4px;
-  background-color: #d2690d;
+  background-color: #4b5563;
   /* Outer rectangle background */
   border: 3px solid #000000;
   /* Outer rectangle border */
   transition: transform 0.4s ease, box-shadow 0.4s ease;
+  padding: 0.2rem 0.625rem;
 }
 
 .form-select-wrapper:hover {
@@ -1017,6 +1068,10 @@ video {
 
 .inset-0 {
   inset: 0px;
+}
+
+.left-1\/2 {
+  left: 50%;
 }
 
 .right-2 {
@@ -1147,6 +1202,10 @@ video {
   min-height: 100vh;
 }
 
+.w-0 {
+  width: 0px;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -1189,6 +1248,11 @@ video {
 
 .flex-1 {
   flex: 1 1 0%;
+}
+
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .cursor-pointer {

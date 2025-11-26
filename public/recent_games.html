@@ -15,9 +15,15 @@
   <body class="flex flex-col items-center min-h-screen">
     <div class="page-wrapper max-w-4xl">
       <header class="page-header">
-        <h1 class="text-4xl">
-          <span class="page-title">Recent Games</span>
-        </h1>
+        <div class="flex items-center mb-4 relative">
+          <a href="home.html" class="nav-button">⌂</a>
+          <h1
+            class="text-4xl absolute left-1/2 -translate-x-1/2 w-full text-center"
+          >
+            <span class="page-title">Recent Games</span>
+          </h1>
+          <div class="w-0"></div>
+        </div>
       </header>
 
       <div id="recent-games-container" class="space-y-4">
@@ -42,7 +48,10 @@
       class="hidden fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center"
       onclick="closePhotoLightbox()"
     >
-      <div class="relative max-w-4xl max-h-full p-4" onclick="event.stopPropagation()">
+      <div
+        class="relative max-w-4xl max-h-full p-4"
+        onclick="event.stopPropagation()"
+      >
         <button
           id="close-lightbox"
           onclick="closePhotoLightbox()"
@@ -63,17 +72,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
+
     <!-- Firebase Config -->
     <script src="js/firebase-config.js"></script>
-    
+
     <!-- Initialize Firebase -->
     <script>
       firebase.initializeApp(window.firebaseConfig);
       window.db = firebase.firestore();
       window.storage = firebase.storage();
     </script>
-    
+
     <!-- Firebase Service (replaces api.js) -->
     <script src="js/firebase-service.js"></script>
     <script src="js/recent-games.js"></script>

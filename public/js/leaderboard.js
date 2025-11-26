@@ -1,24 +1,61 @@
 // Leaderboard page logic
 
+let selectedPledgeClass = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   const sortSelect = document.getElementById("sort-by");
+  const toggleGroup = document.querySelector(".pledge-toggle-group");
+
+  // Sort dropdown listener
   if (sortSelect) {
     sortSelect.addEventListener("change", (e) => {
-      loadLeaderboard(e.target.value);
+      loadLeaderboard(e.target.value, selectedPledgeClass);
     });
   }
 
-  loadLeaderboard("cups_hit_avg");
+  // Event delegation: one listener on parent for all toggle buttons
+  if (toggleGroup) {
+    toggleGroup.addEventListener("click", (e) => {
+      // Only handle clicks on buttons, not the container
+      if (e.target.classList.contains("pledge-toggle-button")) {
+        const year = e.target.getAttribute("data-year");
+
+        // Toggle: if clicking the same button, deselect it
+        if (e.target.classList.contains("selected")) {
+          e.target.classList.remove("selected");
+          selectedPledgeClass = null;
+        } else {
+          // Remove selected from all buttons
+          document.querySelectorAll(".pledge-toggle-button").forEach((btn) => {
+            btn.classList.remove("selected");
+          });
+          // Add selected to clicked button
+          e.target.classList.add("selected");
+          selectedPledgeClass = parseInt(year);
+        }
+
+        // Reload leaderboard with new filter
+        const currentSort = sortSelect ? sortSelect.value : "cups_hit_avg";
+        loadLeaderboard(currentSort, selectedPledgeClass);
+      }
+    });
+  }
+
+  loadLeaderboard("cups_hit_avg", selectedPledgeClass);
 });
 
-async function loadLeaderboard(sortBy = "cups_hit_avg") {
+async function loadLeaderboard(sortBy = "cups_hit_avg", pledgeClass = null) {
   const container = document.getElementById("leaderboard-container");
   if (!container) return;
 
   try {
     container.innerHTML =
       '<p class="text-orange-500">Loading leaderboard...</p>';
-    const leaderboard = await window.ceepsAPI.getLeaderboard(sortBy, 50);
+    const leaderboard = await window.ceepsAPI.getLeaderboard(
+      sortBy,
+      50,
+      pledgeClass
+    );
 
     if (leaderboard.length === 0) {
       container.innerHTML = '<p class="text-orange-500">No players found.</p>';

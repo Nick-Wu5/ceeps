@@ -15,21 +15,34 @@
   <body class="flex flex-col items-center min-h-screen">
     <div class="page-wrapper max-w-6xl">
       <header class="page-header">
-        <h1 class="text-4xl">
-          <span class="page-title">Leaderboards</span>
-        </h1>
+        <div class="flex items-center mb-4 relative">
+          <a href="home.html" class="nav-button">⌂</a>
+          <h1
+            class="text-4xl absolute left-1/2 -translate-x-1/2 w-full text-center"
+          >
+            <span class="page-title">Leaderboards</span>
+          </h1>
+          <div class="w-0"></div>
+        </div>
       </header>
 
-      <div class="mb-6">
+      <div class="mb-6 flex items-center justify-center gap-4">
         <div class="form-select-wrapper">
           <select id="sort-by" class="form-select">
             <option value="cups_hit_avg">Average Cups</option>
             <option value="total_cups">Total Cups</option>
-            <option value="win_ratio">Win Rate</option>
             <option value="total_wins">Total Wins</option>
+            <option value="win_ratio">Win Rate</option>
             <option value="games_played">Games Played</option>
             <option value="scorecards">Scorecards</option>
           </select>
+        </div>
+
+        <div class="pledge-toggle-group">
+          <button class="pledge-toggle-button" data-year="22">'22</button>
+          <button class="pledge-toggle-button" data-year="23">'23</button>
+          <button class="pledge-toggle-button" data-year="24">'24</button>
+          <button class="pledge-toggle-button" data-year="25">'25</button>
         </div>
       </div>
 
