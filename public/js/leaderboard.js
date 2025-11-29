@@ -74,6 +74,8 @@ async function loadLeaderboard(sortBy = "cups_hit_avg", pledgeClass = null) {
               <th class="p-3 text-orange-500">Win Rate</th>
               <th class="p-3 text-orange-500">Avg Cups</th>
               <th class="p-3 text-orange-500">Total Cups</th>
+              <th class="p-3 text-orange-500">Max Cups</th>
+              <th class="p-3 text-orange-500">Nakeds</th>
               <th class="p-3 text-orange-500">Scorecards</th>
             </tr>
           </thead>
@@ -98,6 +100,8 @@ function createLeaderboardRow(player) {
   const gamesWon = player.games_won || 0;
   const totalCupsHit = player.total_cups_hit || 0;
   const scorecards = player.number_of_scorecards || 0;
+  const nakedsRan = player.naked_laps_run || 0;
+  const maxCupsHit = player.max_cups_hit || 0;
   const playerName = player.player_name || "Unknown";
   const rank = player.rank || 0;
 
@@ -110,6 +114,8 @@ function createLeaderboardRow(player) {
       <td class="p-3 text-white">${winRatePercent}%</td>
       <td class="p-3 text-white">${cupsHitAvg}</td>
       <td class="p-3 text-white">${totalCupsHit}</td>
+      <td class="p-3 text-white">${maxCupsHit}</td>
+      <td class="p-3 text-white">${nakedsRan}</td>
       <td class="p-3 text-yellow-500">${scorecards}</td>
     </tr>
   `;

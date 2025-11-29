@@ -72,6 +72,7 @@ async function submitGameResult(gameData, photoFile = null) {
     allPlayers.forEach((playerName) => {
       const stats = gameData.individual_stats[playerName] || {};
       const cupsHit = stats.cups_hit || 0;
+      const errors = stats.errors || 0;
       const team = gameData.team1.includes(playerName) ? "team1" : "team2";
 
       // Calculate naked laps (rule: losing team with ≤9 cups)
@@ -88,9 +89,21 @@ async function submitGameResult(gameData, photoFile = null) {
 
       individualStats[playerName] = {
         cups_hit: cupsHit,
+        errors: errors,
         naked_laps: finalNakedLapsCount,
       };
     });
+
+    // DEBUG: Check what's being saved
+    console.log(
+      "DEBUG - individualStats being saved to Firestore:",
+      individualStats
+    );
+    console.log(
+      "DEBUG - Sample player in saved stats:",
+      Object.keys(individualStats)[0],
+      individualStats[Object.keys(individualStats)[0]]
+    );
 
     // 3. Add game document with individual_stats and photo included
     const gameRef = await firestore.collection("games").add({
@@ -153,6 +166,7 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
     const won = playerTeam === winner;
     const cupsHit = playerStat.cups_hit || 0;
     const nakedLapsCount = playerStat.naked_laps || 0;
+    const errorsCount = playerStat.errors || 0;
     const gotScorecard = playerName === scorecardPlayer ? 1 : 0;
 
     const playerStatsRef = firestore.collection("player_stats").doc(playerName);
@@ -170,6 +184,8 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
           total_cups_hit: cupsHit,
           number_of_scorecards: gotScorecard,
           naked_laps_run: nakedLapsCount,
+          total_errors: errorsCount,
+          max_cups_hit: cupsHit,
           game_ids: [gameId], // Initialize game_ids array with this game
           last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
         };
@@ -184,6 +200,8 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
         const cupsHitAvg = totalCupsHit / gamesPlayed;
         const scorecards = currentStats.number_of_scorecards + gotScorecard;
         const nakedLaps = currentStats.naked_laps_run + nakedLapsCount;
+        const totalErrors = (currentStats.total_errors || 0) + errorsCount;
+        const maxCupsHit = Math.max(cupsHit, currentStats.max_cups_hit || 0);
 
         // Add gameId to game_ids array
         const updateData = {
@@ -194,6 +212,8 @@ async function updatePlayerStats(gameId, individualStatsFromRequest) {
           total_cups_hit: totalCupsHit,
           number_of_scorecards: scorecards,
           naked_laps_run: nakedLaps,
+          total_errors: totalErrors,
+          max_cups_hit: maxCupsHit,
           last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
         };
 
@@ -327,6 +347,8 @@ async function getPlayerStats(playerName) {
       total_cups_hit: data.total_cups_hit || 0,
       number_of_scorecards: data.number_of_scorecards || 0,
       naked_laps_run: data.naked_laps_run || 0,
+      total_errors: data.total_errors || 0,
+      max_cups_hit: data.max_cups_hit || 0,
     };
   } catch (error) {
     console.error("Error fetching player stats:", error);
@@ -365,6 +387,12 @@ async function getLeaderboard(
         break;
       case "scorecards":
         orderByField = "number_of_scorecards";
+        break;
+      case "nakeds_ran":
+        orderByField = "naked_laps_run";
+        break;
+      case "max_cups":
+        orderByField = "max_cups_hit";
         break;
       case "win_ratio":
       default:
@@ -418,6 +446,7 @@ async function getLeaderboard(
         total_cups_hit: Number(data.total_cups_hit) || 0,
         number_of_scorecards: Number(data.number_of_scorecards) || 0,
         naked_laps_run: Number(data.naked_laps_run) || 0,
+        max_cups_hit: Number(data.max_cups_hit) || 0,
       });
     });
 
@@ -450,6 +479,14 @@ async function getLeaderboard(
         case "scorecards":
           primaryValueA = a.number_of_scorecards;
           primaryValueB = b.number_of_scorecards;
+          break;
+        case "nakeds_ran":
+          primaryValueA = a.naked_laps_run;
+          primaryValueB = b.naked_laps_run;
+          break;
+        case "max_cups":
+          primaryValueA = a.max_cups_hit;
+          primaryValueB = b.max_cups_hit;
           break;
         default:
           primaryValueA = a.cups_hit_avg;
@@ -680,7 +717,6 @@ async function recalculatePlayerStats(playerName) {
   }
 
   try {
-    // Get player's current stats to get game_ids array
     const playerStatsRef = firestore.collection("player_stats").doc(playerName);
     const playerStatsDoc = await playerStatsRef.get();
 
@@ -692,13 +728,31 @@ async function recalculatePlayerStats(playerName) {
     const currentStats = playerStatsDoc.data();
     const gameIds = currentStats.game_ids || [];
 
+    // If no games, explicitly reset all stats to 0 (like the working manual code)
     if (gameIds.length === 0) {
-      // No games to recalculate from, but player document exists
-      // This shouldn't happen, but handle gracefully
+      await firestore.runTransaction(async (transaction) => {
+        const currentDoc = await transaction.get(playerStatsRef);
+        if (!currentDoc.exists) {
+          return;
+        }
+
+        transaction.update(playerStatsRef, {
+          games_played: 0,
+          games_won: 0,
+          win_ratio: 0,
+          cups_hit_avg: 0,
+          total_cups_hit: 0,
+          number_of_scorecards: 0,
+          naked_laps_run: 0,
+          total_errors: 0,
+          max_cups_hit: 0,
+          last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      });
       return;
     }
 
-    // Fetch all games for this player
+    // Fetch all games for this player (outside transaction)
     const gamePromises = gameIds.map((gameId) =>
       firestore.collection("games").doc(gameId).get()
     );
@@ -710,6 +764,8 @@ async function recalculatePlayerStats(playerName) {
     let totalCupsHit = 0;
     let number_of_scorecards = 0;
     let nakedLapsRun = 0;
+    let totalErrors = 0;
+    let maxCupsHit = 0;
 
     gameDocs.forEach((gameDoc) => {
       if (!gameDoc.exists) {
@@ -729,6 +785,8 @@ async function recalculatePlayerStats(playerName) {
       gamesPlayed++;
       totalCupsHit += playerStat.cups_hit || 0;
       nakedLapsRun += playerStat.naked_laps || 0;
+      totalErrors += playerStat.errors || 0;
+      maxCupsHit = Math.max(maxCupsHit, playerStat.cups_hit || 0);
 
       // Check if player won (derive team from game document)
       const playerTeam = game.team1.includes(playerName) ? "team1" : "team2";
@@ -762,6 +820,8 @@ async function recalculatePlayerStats(playerName) {
         total_cups_hit: totalCupsHit,
         number_of_scorecards: number_of_scorecards,
         naked_laps_run: nakedLapsRun,
+        total_errors: totalErrors,
+        max_cups_hit: maxCupsHit,
         last_updated: window.firebase.firestore.FieldValue.serverTimestamp(),
         // Keep existing game_ids array
       });
@@ -774,9 +834,6 @@ async function recalculatePlayerStats(playerName) {
 
 // Recalculate player stats for multiple players
 async function recalculatePlayerStatsForPlayers(playerNames) {
-  const db = ensureFirebase();
-  const firestore = getFirestore();
-
   if (!Array.isArray(playerNames) || playerNames.length === 0) {
     throw new Error("playerNames must be a non-empty array");
   }
@@ -881,7 +938,7 @@ async function updateGame(gameId, gameData, photoFile = null) {
     allPlayers.forEach((playerName) => {
       const stats = gameData.individual_stats[playerName] || {};
       const cupsHit = stats.cups_hit || 0;
-
+      const errors = stats.errors || 0;
       // Calculate naked laps (rule: losing team with ≤9 cups)
       const team = gameData.team1.includes(playerName) ? "team1" : "team2";
       const isLosingTeam =
@@ -897,6 +954,7 @@ async function updateGame(gameId, gameData, photoFile = null) {
 
       individualStats[playerName] = {
         cups_hit: cupsHit,
+        errors: errors,
         naked_laps: finalNakedLapsCount,
       };
     });

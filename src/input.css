@@ -220,8 +220,17 @@
 
   /* Standardized form input fields */
   .form-input {
-    @apply w-full p-3 rounded text-white border border-orange-500;
-    background-color: rgb(0 0 0 / 0.5);
+    width: 100%;
+    position: relative;
+    background-color: #4b5563; /* Outer rectangle background */
+    border: 3px solid #000000; /* Outer rectangle border */
+    padding: 0.4rem 0.625rem;
+    color: white;
+    font-family: "Jersey 20", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    @apply text-xl text-white py-2.5 px-4 relative;
+    display: inline-block;
   }
 
   /* Select wrapper for inner rectangle and custom arrow */

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delete Games - Century Pong Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jersey+20&family=Londrina+Solid:wght@100;300;400;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      .game-list-item {
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid #ff6b35;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .game-list-item h4 {
+        color: #ff6b35;
+        margin: 0 0 8px 0;
+      }
+      .game-info {
+        color: #fff;
+        font-size: 14px;
+        margin: 4px 0;
+      }
+      .delete-btn {
+        background: #f44336;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+      .delete-btn:hover {
+        background: #d32f2f;
+      }
+      .delete-btn:disabled {
+        background: #666;
+        cursor: not-allowed;
+      }
+      .warning-box {
+        background: rgba(244, 67, 54, 0.2);
+        border: 2px solid #f44336;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+        color: #fff;
+      }
+      .success-message {
+        background: rgba(76, 175, 80, 0.2);
+        border: 2px solid #4caf50;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 12px 0;
+        color: #fff;
+      }
+      .error-message {
+        background: rgba(244, 67, 54, 0.2);
+        border: 2px solid #f44336;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 12px 0;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col items-center min-h-screen">
+    <div class="page-wrapper max-w-4xl">
+      <header class="page-header">
+        <h1 class="text-4xl">
+          <span class="page-title">Delete Games</span>
+        </h1>
+      </header>
+
+      <div class="warning-box">
+        <strong>⚠️ WARNING:</strong> Deleting a game will:
+        <ul style="margin: 8px 0; padding-left: 20px">
+          <li>Permanently remove the game document</li>
+          <li>Delete the game photo (if any)</li>
+          <li>Remove the game from all players' game_ids arrays</li>
+          <li>Recalculate stats for all affected players</li>
+        </ul>
+        <strong>This action cannot be undone!</strong>
+      </div>
+
+      <div class="mb-4">
+        <button
+          onclick="loadRecentGames()"
+          class="nav-button bg-orange-600 hover:bg-orange-700"
+        >
+          Load Recent Games
+        </button>
+        <button
+          onclick="clearMessages()"
+          class="nav-button bg-gray-600 hover:bg-gray-700"
+        >
+          Clear Messages
+        </button>
+        <button
+          onclick="recalculateAllPlayerStats()"
+          class="nav-button bg-blue-600 hover:bg-blue-700"
+        >
+          Recalculate All Player Stats
+        </button>
+      </div>
+
+      <div id="message-container"></div>
+      <div id="games-container" class="space-y-4">
+        <p class="text-orange-500">Click "Load Recent Games" to see games.</p>
+      </div>
+
+      <div class="back-button-container">
+        <a href="../home.html" class="nav-button">Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="../js/firebase-config.js"></script>
+
+    <!-- Initialize Firebase -->
+    <script>
+      firebase.initializeApp(window.firebaseConfig);
+      window.db = firebase.firestore();
+      window.storage = firebase.storage();
+    </script>
+
+    <!-- Firebase Service -->
+    <script src="../js/firebase-service.js"></script>
+    <script src="../js/random-background.js"></script>
+
+    <script>
+      async function loadRecentGames() {
+        const container = document.getElementById("games-container");
+        const messageContainer = document.getElementById("message-container");
+        messageContainer.innerHTML = "";
+
+        try {
+          container.innerHTML =
+            '<p class="text-orange-500">Loading games...</p>';
+
+          // Get all games (we'll limit to 20 most recent)
+          const games = await window.ceepsAPI.getRecentGames(20, 0, false);
+
+          if (games.length === 0) {
+            container.innerHTML =
+              '<p class="text-orange-500">No games found.</p>';
+            return;
+          }
+
+          container.innerHTML = games
+            .map((game) => createGameListItem(game))
+            .join("");
+
+          showMessage(
+            `Loaded ${games.length} game(s). Select games to delete.`,
+            "success"
+          );
+        } catch (error) {
+          container.innerHTML = `<p class="text-red-500">Error loading games: ${error.message}</p>`;
+          showMessage(`Error: ${error.message}`, "error");
+        }
+      }
+
+      function createGameListItem(game) {
+        const date = formatDate(game.date);
+        const winnerTeam = game.winner === "team1" ? game.team1 : game.team2;
+        const winnerScore =
+          game.winner === "team1" ? game.team1_score : game.team2_score;
+        const loserScore =
+          game.winner === "team1" ? game.team2_score : game.team1_score;
+
+        return `
+          <div class="game-list-item" id="game-${game.id}">
+            <h4>Game on ${date}</h4>
+            <div class="game-info">
+              <strong>Winner:</strong> ${winnerScore} cups | 
+              <strong>Loser:</strong> ${loserScore} cups
+            </div>
+            <div class="game-info">
+              <strong>Scorecard:</strong> ${game.scorecard_player || "N/A"}
+            </div>
+            <div class="game-info">
+              <strong>Game ID:</strong> <code style="font-size: 12px;">${
+                game.id
+              }</code>
+            </div>
+            <button 
+              class="delete-btn" 
+              onclick="deleteGame('${game.id}', '${date}')"
+              id="delete-btn-${game.id}"
+            >
+              Delete This Game
+            </button>
+          </div>
+        `;
+      }
+
+      async function deleteGame(gameId, gameDate) {
+        if (
+          !confirm(
+            `⚠️ WARNING: This will permanently delete the game from ${gameDate}!\n\n` +
+              `This will:\n` +
+              `- Delete the game document\n` +
+              `- Remove it from all players' stats\n` +
+              `- Recalculate affected players' stats\n\n` +
+              `Are you absolutely sure you want to continue?`
+          )
+        ) {
+          return;
+        }
+
+        const deleteBtn = document.getElementById(`delete-btn-${gameId}`);
+        const gameItem = document.getElementById(`game-${gameId}`);
+
+        try {
+          deleteBtn.disabled = true;
+          deleteBtn.textContent = "Deleting...";
+          showMessage(`Deleting game from ${gameDate}...`, "info");
+
+          const result = await window.ceepsAPI.deleteGame(gameId);
+
+          if (result.success) {
+            showMessage(
+              `✅ Successfully deleted game from ${gameDate}! Player stats have been recalculated.`,
+              "success"
+            );
+            // Remove the game item from the list
+            gameItem.style.opacity = "0.5";
+            gameItem.style.pointerEvents = "none";
+            deleteBtn.textContent = "Deleted";
+            deleteBtn.style.background = "#666";
+          }
+        } catch (error) {
+          showMessage(`❌ Error deleting game: ${error.message}`, "error");
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete This Game";
+        }
+      }
+
+      function formatDate(dateString) {
+        try {
+          if (
+            typeof dateString === "string" &&
+            dateString.match(/^\d{4}-\d{2}-\d{2}$/)
+          ) {
+            const [year, month, day] = dateString.split("-").map(Number);
+            const date = new Date(year, month - 1, day);
+            return date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+          }
+          const date = new Date(dateString);
+          return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        } catch {
+          return dateString;
+        }
+      }
+
+      function showMessage(text, type = "info") {
+        const container = document.getElementById("message-container");
+        const className =
+          type === "success"
+            ? "success-message"
+            : type === "error"
+            ? "error-message"
+            : "warning-box";
+        const messageDiv = document.createElement("div");
+        messageDiv.className = className;
+        messageDiv.textContent = text;
+        container.appendChild(messageDiv);
+
+        // Auto-remove success messages after 5 seconds
+        if (type === "success") {
+          setTimeout(() => {
+            messageDiv.remove();
+          }, 5000);
+        }
+      }
+
+      function clearMessages() {
+        document.getElementById("message-container").innerHTML = "";
+      }
+
+      async function recalculateAllPlayerStats() {
+        if (
+          !confirm(
+            "This will recalculate stats for ALL players, including total_errors.\n\n" +
+              "This may take a while if you have many players.\n\n" +
+              "Continue?"
+          )
+        ) {
+          return;
+        }
+
+        try {
+          showMessage("Loading all players...", "info");
+
+          // Get all players from player_stats collection
+          const firestore = window.db;
+          const snapshot = await firestore.collection("player_stats").get();
+
+          const allPlayers = [];
+          snapshot.forEach((doc) => {
+            // Skip Guest
+            if (doc.id !== "Guest") {
+              allPlayers.push(doc.id);
+            }
+          });
+
+          if (allPlayers.length === 0) {
+            showMessage("No players found to recalculate.", "error");
+            return;
+          }
+
+          showMessage(
+            `Recalculating stats for ${allPlayers.length} player(s)...`,
+            "info"
+          );
+
+          // Recalculate in batches to avoid overwhelming the system
+          const batchSize = 5;
+          let processed = 0;
+
+          for (let i = 0; i < allPlayers.length; i += batchSize) {
+            const batch = allPlayers.slice(i, i + batchSize);
+            await window.ceepsAPI.recalculatePlayerStatsForPlayers(batch);
+            processed += batch.length;
+
+            showMessage(
+              `Progress: ${processed}/${allPlayers.length} players recalculated...`,
+              "info"
+            );
+          }
+
+          showMessage(
+            `✅ Successfully recalculated stats for ${allPlayers.length} player(s)! Total errors have been backfilled from historical games.`,
+            "success"
+          );
+        } catch (error) {
+          showMessage(`❌ Error: ${error.message}`, "error");
+          console.error("Error recalculating all player stats:", error);
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -130,18 +130,28 @@ function createFullStatsCard(playerName, stats) {
             stats.number_of_scorecards
           }</div>
         </div>
-      </div>
-
-      ${
-        stats.naked_laps_run > 0
-          ? `
-        <div class="mt-4 bg-red-900 bg-opacity-50 p-4 rounded">
-          <div class="text-red-400 text-sm">Naked Laps Run</div>
-          <div class="text-xl font-bold text-red-500">${stats.naked_laps_run}</div>
+        
+        <div class="bg-black bg-opacity-50 p-4 rounded">
+          <div class="text-gray-400 text-sm">Naked Laps Run</div>
+          <div class="text-2xl font-bold text-red-500">${
+            stats.naked_laps_run || 0
+          }</div>
         </div>
-      `
-          : ""
-      }
+        
+        <div class="bg-black bg-opacity-50 p-4 rounded">
+          <div class="text-gray-400 text-sm">Total Errors</div>
+          <div class="text-2xl font-bold text-orange-500">${
+            stats.total_errors || 0
+          }</div>
+        </div>
+        
+        <div class="bg-black bg-opacity-50 p-4 rounded">
+          <div class="text-gray-400 text-sm">Max Cups</div>
+          <div class="text-2xl font-bold text-white">${
+            stats.max_cups_hit || 0
+          }</div>
+        </div>
+      </div>
     </div>
   `;
 }

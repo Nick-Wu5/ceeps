@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Submit Results - Century Pong</title>
@@ -11,14 +11,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-</head>
+  </head>
   <body class="flex flex-col items-center min-h-screen">
     <div class="page-wrapper max-w-6xl">
       <header class="page-header">
         <h1 class="text-4xl">
           <span class="page-title">Submit Game Results</span>
-            </h1>
-        </header>
+        </h1>
+      </header>
 
       <div id="message" class="hidden mb-4 p-4 rounded"></div>
 
@@ -182,15 +182,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team1_player1_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team1_player1_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -206,15 +214,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team1_player2_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team1_player2_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -230,15 +246,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team1_player3_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team1_player3_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -254,15 +278,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team1_player4_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team1_player4_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -284,15 +316,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team2_player1_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team2_player1_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -308,15 +348,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team2_player2_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team2_player2_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -332,15 +380,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team2_player3_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team2_player3_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -356,15 +412,23 @@
                   autocomplete="off"
                   class="form-input mb-3"
                 />
-                <div class="space-y-2">
+                <div class="flex gap-2">
                   <input
                     type="number"
                     name="team2_player4_cups"
                     placeholder="Cups hit"
                     min="0"
-                    value="0"
+                    value=""
                     required
-                    class="form-input"
+                    class="form-input w-[75%]"
+                  />
+                  <input
+                    type="number"
+                    name="team2_player4_errors"
+                    placeholder="Errors"
+                    min="0"
+                    value=""
+                    class="form-input w-[25%]"
                   />
                 </div>
               </div>
@@ -412,5 +476,5 @@
     <script src="js/firebase-service.js"></script>
     <script src="js/submit.js"></script>
     <script src="js/random-background.js"></script>
-</body>
+  </body>
 </html>

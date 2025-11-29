@@ -127,14 +127,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const team = index < 4 ? "team1" : "team2";
           const playerNum = (index % 4) + 1;
           const cupsInput = formData.get(`${team}_player${playerNum}_cups`);
+          const errorsInput = formData.get(`${team}_player${playerNum}_errors`);
           // Parse cups value, defaulting to 0 if empty or invalid
           const cupsValue =
             cupsInput && cupsInput.trim() !== ""
               ? parseInt(cupsInput.trim(), 10)
               : 0;
 
+          // Parse errors value, defaulting to 0 if empty or invalid
+          const errorsValue =
+            errorsInput && errorsInput.trim() !== ""
+              ? parseInt(errorsInput.trim(), 10)
+              : 0;
+
           individualStats[playerName] = {
             cups_hit: cupsValue,
+            errors: errorsValue,
             naked_laps: 0, // Will be set in confirmation screen
           };
         }
@@ -156,10 +164,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
+      const invalidErrors = [];
+      allPlayers.forEach((playerName) => {
+        const errors = individualStats[playerName]?.errors;
+
+        // Check if errors is a valid non-negative integer
+        if (
+          errors == undefined ||
+          errors == null ||
+          isNaN(errors) ||
+          errors < 0 ||
+          !Number.isInteger(errors)
+        ) {
+          invalidErrors.push(playerName);
+        }
+      });
+
       if (invalidCups.length > 0) {
         const invalidNames = invalidCups.join(", ");
         showMessage(
           `Invalid cup values for player(s): ${invalidNames}. Cups must be non-negative integers.`,
+          "error"
+        );
+        return;
+      }
+
+      if (invalidErrors.length > 0) {
+        const invalidNames = invalidErrors.join(", ");
+        showMessage(
+          `Invalid error values for players(s): ${invalidNames}. Errors must be non-negative integers.`,
           "error"
         );
         return;
@@ -230,6 +263,17 @@ document.addEventListener("DOMContentLoaded", () => {
         scorecard_tied_players: scorecardTiedPlayers, // Store tied players if there's a tie
         individual_stats: individualStats,
       };
+
+      console.log("DEBUG: individualStats before submission:", individualStats);
+      console.log(
+        "DEBUG: Sample player errors:",
+        Object.keys(individualStats)
+          .map((name) => ({
+            name,
+            errors: individualStats[name]?.errors || 0,
+          }))
+          .join("\n")
+      );
 
       // Collect photo file (if provided)
       const photoFile = formData.get("game_photo");
@@ -453,7 +497,10 @@ function showReviewConfirmation(gameData) {
       playerDiv.className = `text-white ${
         isScorecard ? "bg-yellow-600 px-2 py-1 rounded" : ""
       }`;
-      playerDiv.textContent = `${player} : ${cupsHit}`;
+      // Format: "Player - X cups (Y errors) or "Player - X cups" if errors is 0
+      const errors = gameData.individual_stats[player]?.errors || 0;
+      const errorsText = errors > 0 ? `(${errors} errors)` : "";
+      playerDiv.textContent = `${player} - ${cupsHit} cups ${errorsText}`;
       winnersDiv.appendChild(playerDiv);
     });
   }
@@ -468,8 +515,10 @@ function showReviewConfirmation(gameData) {
       const playerId = player.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
 
       playerDiv.className = "flex items-center gap-2 text-white";
+      const errors = gameData.individual_stats[player]?.errors || 0;
+      const errorsText = errors > 0 ? `(${errors} errors)` : "";
       playerDiv.innerHTML = `
-        <span class="flex-1">${player} : ${cupsHit} :</span>
+        <span class="flex-1">${player} - ${cupsHit} cups ${errorsText}</span>
         <label for="naked-laps-${playerId}" class="text-white text-sm">Nakeds:</label>
         <input 
           type="number" 

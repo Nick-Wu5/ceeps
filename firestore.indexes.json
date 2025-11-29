@@ -65,6 +65,20 @@
           "mode": "DESCENDING"
         },
         {
+          "fieldPath": "naked_laps_run",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
           "fieldPath": "games_won",
           "mode": "DESCENDING"
         }
@@ -156,6 +170,56 @@
         },
         {
           "fieldPath": "number_of_scorecards",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "pledge_class",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "naked_laps_run",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "max_cups_hit",
+          "mode": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "player_stats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "pledge_class",
+          "mode": "ASCENDING"
+        },
+        {
+          "fieldPath": "games_played",
+          "mode": "DESCENDING"
+        },
+        {
+          "fieldPath": "max_cups_hit",
           "mode": "DESCENDING"
         }
       ]

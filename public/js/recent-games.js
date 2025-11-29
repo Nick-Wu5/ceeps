@@ -194,10 +194,12 @@ function createGameCard(game) {
             ${winnerTeam
               .map((player) => {
                 const cupsHit = individualStats[player]?.cups_hit || 0;
-                return `<li class="text-white">${player} - ${cupsHit} cups</li>`;
+                const errors = individualStats[player]?.errors || 0;
+                const errorsText = errors > 0 ? `(${errors} errors)` : "";
+                return `<li class="text-white">${player} - ${cupsHit} cups ${errorsText}</li>`;
               })
               .join("")}
-          </ul>
+          </ul> 
         </div>
         <div>
           <h4 class="font-bold text-red-500 mb-2">Losers (${loserScore} cups)</h4>
@@ -205,7 +207,9 @@ function createGameCard(game) {
             ${loserTeam
               .map((player) => {
                 const cupsHit = individualStats[player]?.cups_hit || 0;
-                return `<li class="text-white">${player} - ${cupsHit} cups</li>`;
+                const errors = individualStats[player]?.errors || 0;
+                const errorsText = errors > 0 ? `(${errors} errors)` : "";
+                return `<li class="text-white">${player} - ${cupsHit} cups ${errorsText}</li>`;
               })
               .join("")}
           </ul>
@@ -218,7 +222,9 @@ function createGameCard(game) {
         }</span></p>
       </div>
       
-      ${game.photo_url ? `
+      ${
+        game.photo_url
+          ? `
         <div class="mt-4">
           <img 
             src="${game.photo_url}" 
@@ -227,7 +233,9 @@ function createGameCard(game) {
             onclick="openPhotoLightbox('${game.photo_url}')"
           />
         </div>
-      ` : ''}
+      `
+          : ""
+      }
     </div>
   `;
 }
