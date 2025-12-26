@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Body background image */
+@layer base {
+  body {
+    min-height: 100vh;
+    background-image: url("images/home_background.jpeg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
 /* ============================================
    Custom Site Styling Classes
    ============================================ */

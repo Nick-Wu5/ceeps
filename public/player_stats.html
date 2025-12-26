@@ -45,20 +45,25 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
+
     <!-- Firebase Config -->
     <script src="js/firebase-config.js"></script>
-    
+
     <!-- Initialize Firebase -->
     <script>
       firebase.initializeApp(window.firebaseConfig);
       window.db = firebase.firestore();
       window.storage = firebase.storage();
     </script>
-    
+
     <!-- Firebase Service (replaces api.js) -->
     <script src="js/firebase-service.js"></script>
     <script src="js/player-stats.js"></script>
-    <script src="js/random-background.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        window.ceepsAuth.protectPage();
+      });
+    </script>
   </body>
 </html>

@@ -86,6 +86,11 @@
     <!-- Firebase Service (replaces api.js) -->
     <script src="js/firebase-service.js"></script>
     <script src="js/recent-games.js"></script>
-    <script src="js/random-background.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        window.ceepsAuth.protectPage();
+      });
+    </script>
   </body>
 </html>
