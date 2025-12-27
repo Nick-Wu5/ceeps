@@ -80,7 +80,8 @@ function showLoginModal() {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.9);
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
         z-index: 10000;
         display: flex;
         align-items: center;
@@ -92,43 +93,26 @@ function showLoginModal() {
   modal.style.cssText = `
         background: #1a1a1a;
         padding: 2rem;
-        border-radius: 8px;
-        border: 2px solid #d2690d;
+        border: 4px solid #d2690d;
         max-width: 400px;
         width: 90%;
     `;
 
   modal.innerHTML = `
-        <h2 style="color: #d2690d; margin-bottom: 1rem; font-size: 1.5rem;">Password Required</h2>
+        <h2 class="auth-modal-title">Password Required</h2>
         <form id="auth-form" style="display: flex; flex-direction: column; gap: 1 rem;">
             <input
                 type="password"
                 id="auth-password"
                 placeholder="Enter password..."
+                class="form-input"
                 required
                 autofocus
-                style="
-                    padding: 0.75rem;
-                    border: 2px solid #333;
-                    background: #000;
-                    color: #fff;
-                    border-radius: 4px;
-                    font-size: 1rem;
-                "
             />
         <div id="auth-message" style="color: #ef4444; min-height: 1.5rem; font-size:0.9rem;"></div>
         <button
             type="submit"
-            style="
-                padding: 0.75rem;
-                background: #d2690d;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 1rem;
-                cursor: pointer;
-                font-weight: bold;
-            "
+            class="nav-button"
         >
             Login
         </button>

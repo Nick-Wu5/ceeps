@@ -141,6 +141,13 @@
     background-color: #d2690d;
   }
 
+  .auth-modal-title {
+    @apply text-2xl text-white mb-4;
+    font-family: "Jersey 20", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
   /* Component Classes */
   /* Home page title */
   .site-title {
